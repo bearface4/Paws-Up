@@ -1,0 +1,50 @@
+name: pawsupunf
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.6 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  device_preview: ^1.1.0
+  curved_navigation_bar: ^1.0.3
+  cupertino_icons: ^1.0.2
+  lottie: ^3.1.0
+  firebase_core: ^2.19.0
+  cloud_firestore: 4.15.8
+  firebase_auth: ^4.17.8
+  shared_preferences: ^2.0.6
+  flutter_secure_storage: ^5.0.2
+  image_picker: ^0.8.4+4
+  firebase_storage: ^11.6.9
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  fonts:
+    - family: Playfair Display
+      fonts:
+        - asset: lib/fonts/PlayfairDisplay-Regular.ttf
+    - family: Sansation
+      fonts:
+        - asset: lib/fonts/Sansation_Italic.ttf
+    - family: Inter
+      fonts:
+      - asset: lib/fonts/Inter-Regular.otf
+    - family: Inter
+      fonts:
+        - asset: lib/fonts/Inter-Italic.otf
+    - family: Sansation
+      fonts:
+        - asset: lib/fonts/Sansation_Regular.ttf
+  assets:
+    - lib/assets/
+  uses-material-design: true
