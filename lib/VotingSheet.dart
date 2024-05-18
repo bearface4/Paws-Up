@@ -39,8 +39,6 @@ class _VotingSheetState extends State<VotingSheet> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Student Government'),
-        backgroundColor: Colors.blue.shade800,
       ),
       body: ListView(
         children: <Widget>[
@@ -58,7 +56,7 @@ class _VotingSheetState extends State<VotingSheet> {
             ),
           ),
           _buildPositionSection('President', [
-            _buildCandidateTile('Batumbakal, Johanna', 'lib/assets/batumbakal_johanna.jpg', 'Party List', 'president'),
+            _buildCandidateTile('Batumbakal, Johannahaa', 'lib/assets/batumbakal_johanna.jpg', 'Party List', 'president'),
             _buildCandidateTile('Alfredo, Maica Marie', 'lib/assets/alfredo_maica_marie.jpg', 'Party List', 'president'),
             _buildCandidateTile('Bacoor, Louisa Jayne', 'lib/assets/bacoor_louisa_jayne.jpg', 'Party List', 'president'),
           ]),
