@@ -48,7 +48,7 @@ class _VotingSheetState extends State<VotingSheet> {
               'Student \nGovernment',
               style: TextStyle(
                 color: Color(0xFF002365),
-                fontFamily: 'Playfair Display',
+                fontFamily: 'Inter',
                 fontWeight: FontWeight.w700,
                 decoration: TextDecoration.underline,
                 fontSize: 50.0,
