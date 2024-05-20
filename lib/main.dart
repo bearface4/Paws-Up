@@ -56,8 +56,8 @@ class _SplashScreenState extends State<SplashScreen> {
         ],
       ),
       childWidget: SizedBox(
-        height: 100,
-        width: 100,
+        height: 350,
+        width: 350,
         child: Image.asset("lib/assets/log2.png"),
       ),
       duration: const Duration(milliseconds: 1500),
