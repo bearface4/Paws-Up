@@ -10,7 +10,7 @@ import 'package:pawsupunf/Voting.dart';
 import 'package:pawsupunf/VotingSheet.dart';
 import 'package:pawsupunf/Verify.dart';
 import 'package:pawsupunf/firebase_options.dart';
-
+import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,10 +46,24 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Image.asset('lib/assets/demolog.png'), // Ensure this asset path is correct
+    return FlutterSplashScreen.scale(
+      gradient: const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Colors.white,
+          Colors.blue,
+        ],
       ),
+      childWidget: SizedBox(
+        height: 100,
+        width: 100,
+        child: Image.asset("lib/assets/log2.png"),
+      ),
+      duration: const Duration(milliseconds: 1500),
+      animationDuration: const Duration(milliseconds: 1000),
+      onAnimationEnd: () => debugPrint("On Scale End"),
+      nextScreen: SignIn(),
     );
   }
 }
