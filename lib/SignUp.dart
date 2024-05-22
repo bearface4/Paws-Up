@@ -183,7 +183,7 @@ class _SignUpState extends State<SignUp> {
       } else if (label == 'Student ID') {
           final RegExp studentIdRegExp = RegExp(r'^\d{4}-\d{6}$');
           if (!studentIdRegExp.hasMatch(value)) {
-            return 'Please enter a valid student ID in the format YYYY-123456';
+            return 'Student ID format should be YYYY-123456';
           }
         } else if (label == 'School Email') {
           final RegExp emailRegExp = RegExp(r'^\S+@students\.nu-dasma\.edu\.ph$');
