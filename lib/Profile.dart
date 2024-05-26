@@ -189,11 +189,11 @@ class _ProfilePageState extends State<Profile> {
                             ),
                             borderRadius: BorderRadius.circular(15),
                           ),
-                          padding: EdgeInsets.symmetric(horizontal: 85, vertical: 10),
+                          padding: EdgeInsets.symmetric(horizontal: 118, vertical: 10),
                           child: Text(
                             'Update Profile',
                             style: TextStyle(
-                              fontSize: 20.0,
+                              fontSize: 18.0,
                               fontFamily: 'Inter',
                               color: Color(0xFF002365),
                             ),
@@ -215,7 +215,7 @@ class _ProfilePageState extends State<Profile> {
                           child: Text(
                             'Settings',
                             style: TextStyle(
-                              fontSize: 20.0,
+                              fontSize: 18.0,
                               fontFamily: 'Inter',
                               color: Color(0xFF002365),
                             ),
@@ -239,7 +239,7 @@ class _ProfilePageState extends State<Profile> {
                             child: Text(
                               'Logout',
                               style: TextStyle(
-                                fontSize: 20.0,
+                                fontSize: 18.0,
                                 fontFamily: 'Inter',
                                 color: Color(0xFF002365),
                               ),
