@@ -189,7 +189,7 @@ class _ProfilePageState extends State<Profile> {
                             ),
                             borderRadius: BorderRadius.circular(15),
                           ),
-                          padding: EdgeInsets.symmetric(horizontal: 118, vertical: 10),
+                          padding: EdgeInsets.symmetric(horizontal: 119, vertical: 10),
                           child: Text(
                             'Update Profile',
                             style: TextStyle(
