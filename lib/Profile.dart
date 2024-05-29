@@ -7,6 +7,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:pawsupunf/Home.dart';
 import 'package:pawsupunf/Events.dart';
 import 'package:pawsupunf/Voting.dart';
+import 'package:pawsupunf/updateProf.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pawsupunf/SignIn.dart'; // Import SignIn.dart
 

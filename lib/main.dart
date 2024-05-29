@@ -11,6 +11,7 @@ import 'package:pawsupunf/VotingSheet.dart';
 import 'package:pawsupunf/Verify.dart';
 import 'package:pawsupunf/firebase_options.dart';
 import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
+import 'package:pawsupunf/updateProf.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +29,7 @@ void main() async {
       '/Profile': (context) => Profile(),
       '/VotingSheet': (context) => VotingSheet(),
       '/Verify': (context) => Verify(),
+      '/updateProf': (context) => updateProf(),
     },
   ));
 }
