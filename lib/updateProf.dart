@@ -8,7 +8,6 @@ import 'package:pawsupunf/Home.dart';
 import 'package:pawsupunf/Events.dart';
 import 'package:pawsupunf/Voting.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:pawsupunf/SignIn.dart'; // Import SignIn.dart
 
 class updateProf extends StatefulWidget {
   @override
@@ -22,10 +21,18 @@ class _ProfilePageState extends State<updateProf> {
   User? currentUser = FirebaseAuth.instance.currentUser;
   String firstName = '';
   String lastName = '';
+  String studentId = '';
+  String email = '';
   String department = '';
   String section = '';
   String profilePictureURL = '';
   bool _isUploading = false;
+  bool _isEditingDepartment = false;
+  bool _isEditingSection = false;
+  bool _isUpdating = false;
+
+  TextEditingController departmentController = TextEditingController();
+  TextEditingController sectionController = TextEditingController();
 
   @override
   void initState() {
@@ -37,9 +44,13 @@ class _ProfilePageState extends State<updateProf> {
     var document = await _firestore.collection('users').doc(currentUser!.uid).get();
     firstName = document['firstName'];
     lastName = document['lastName'];
+    studentId = document['studentId'];
+    email = document['email'];
     department = document['department'];
     section = document['section'];
     profilePictureURL = document['profilePictureURL'] ?? '';
+    departmentController.text = department;
+    sectionController.text = section;
     setState(() {});
   }
 
@@ -73,14 +84,33 @@ class _ProfilePageState extends State<updateProf> {
     }
   }
 
-  // Add signOutUser function
-  Future<void> signOutUser() async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => SignIn()),
-          (Route<dynamic> route) => false,
+  Future<void> updateUserData() async {
+    setState(() {
+      _isUpdating = true;
+    });
+
+    await _firestore.collection('users').doc(currentUser!.uid).update({
+      'department': departmentController.text,
+      'section': sectionController.text,
+    });
+
+    await Future.delayed(Duration(seconds: 2));
+
+    setState(() {
+      _isUpdating = false;
+      _isEditingDepartment = false;
+      _isEditingSection = false;
+    });
+
+    showSnackBar(context, 'Profile updated successfully');
+  }
+
+  void showSnackBar(BuildContext context, String message) {
+    final snackBar = SnackBar(
+      content: Text(message),
+      behavior: SnackBarBehavior.floating,
     );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Color iconColor(int index) {
@@ -90,147 +120,227 @@ class _ProfilePageState extends State<updateProf> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          Positioned(
-            top: 90.0,
-            left: 90.0,
-            child: RichText(
-              text: TextSpan(
-                children: <TextSpan>[
-                  TextSpan(
-                    text: 'My Profile',
-                    style: TextStyle(
-                      fontSize: 50.0,
-                      fontWeight: FontWeight.w700,
-                      fontFamily: 'Inter',
-                      color: Color(0xFF002365),
+      appBar: AppBar(
+        title: null, // No title
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            SizedBox(height: 50.0),
+            Text(
+              'My Profile',
+              style: TextStyle(
+                fontSize: 50.0,
+                fontWeight: FontWeight.w700,
+                fontFamily: 'Inter',
+                color: Color(0xFF002365),
+              ),
+            ),
+            SizedBox(height: 20.0),
+            Stack(
+              alignment: Alignment.center,
+              children: <Widget>[
+                CircleAvatar(
+                  radius: 100,
+                  backgroundImage: profilePictureURL.isNotEmpty
+                      ? NetworkImage(profilePictureURL) as ImageProvider<Object>?
+                      : AssetImage('lib/assets/default_profile_pic.png'),
+                  child: _isUploading
+                      ? CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF002365)),
+                  )
+                      : null,
+                ),
+                Positioned(
+                  bottom: -5,
+                  right: 75,
+                  child: IconButton(
+                    icon: Icon(Icons.camera_alt),
+                    onPressed: () {
+                      uploadProfilePicture();
+                      setState(() {
+                        _isUploading = true;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    width: 300,
+                    child: TextField(
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        labelText: 'Full Name',
+                        labelStyle: TextStyle(
+                          fontFamily: 'Inter',
+                        ),
+                        border: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                      ),
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                      ),
+                      controller: TextEditingController(text: '$lastName, $firstName'),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  SizedBox(
+                    width: 300,
+                    child: TextField(
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        labelText: 'ID Number',
+                        labelStyle: TextStyle(
+                          fontFamily: 'Inter',
+                        ),
+                        border: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                      ),
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                      ),
+                      controller: TextEditingController(text: studentId),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  SizedBox(
+                    width: 300,
+                    child: TextField(
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        labelText: 'School Email',
+                        border: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                      ),
+                      controller: TextEditingController(text: email),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  SizedBox(
+                    width: 300,
+                    child: TextField(
+                      readOnly: !_isEditingDepartment,
+                      decoration: InputDecoration(
+                        labelText: 'Department',
+                        border: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () {
+                            setState(() {
+                              _isEditingDepartment = !_isEditingDepartment;
+                              if (_isEditingDepartment) {
+                                showSnackBar(context, 'Department is now editable');
+                              }
+                            });
+                          },
+                        ),
+                      ),
+                      controller: departmentController,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  SizedBox(
+                    width: 300,
+                    child: TextField(
+                      readOnly: !_isEditingSection,
+                      decoration: InputDecoration(
+                        labelText: 'Section',
+                        border: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () {
+                            setState(() {
+                              _isEditingSection = !_isEditingSection;
+                              if (_isEditingSection) {
+                                showSnackBar(context, 'Section is now editable');
+                              }
+                            });
+                          },
+                        ),
+                      ),
+                      controller: sectionController,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Center(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        _isUpdating
+                            ? Container()
+                            : FloatingActionButton.extended(
+                          onPressed: _isUpdating ? null : updateUserData,
+                          label: Text(
+                            'Update',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          backgroundColor: Color(0xFF002365),
+                        ),
+                        if (_isUpdating)
+                          CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF002365)),
+                          ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 120.0),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Stack(
-                    children: <Widget>[
-                      CircleAvatar(
-                        radius: 100,
-                        backgroundImage: profilePictureURL.isNotEmpty
-                            ? NetworkImage(profilePictureURL) as ImageProvider<Object>?
-                            : AssetImage('lib/assets/blue.png'),
-                        child: _isUploading
-                            ? CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF002365)),
-                        )
-                            : null,
-                      ),
-                      Positioned(
-                        bottom: -5,
-                        right: 75,
-                        child: IconButton(
-                          icon: Icon(Icons.camera_alt),
-                          onPressed: () {
-                            uploadProfilePicture();
-                            setState(() {
-                              _isUploading = true;
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 0),
-                        child: Text(
-                          '$lastName, \n$firstName',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        '$department',
-                        style: TextStyle(
-                          fontFamily: 'Sansation',
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 50),
-                  // Add new widgets here
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      // Example of new widget
-                      SizedBox(
-                        width: 316,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Color(0xFF002365),
-                              width: 3,
-                            ),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          padding: EdgeInsets.symmetric(horizontal: 119, vertical: 10),
-                          child: Text(
-                            'New Widget 1',
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              fontFamily: 'Inter',
-                              color: Color(0xFF002365),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      SizedBox(
-                        width: 316,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Color(0xFF002365),
-                              width: 3,
-                            ),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          padding: EdgeInsets.symmetric(horizontal: 114, vertical: 10),
-                          child: Text(
-                            'New Widget 2',
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              fontFamily: 'Inter',
-                              color: Color(0xFF002365),
-                            ),
-                          ),
-                        ),
-                      ),
-                      // Add more widgets as needed
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+            SizedBox(height: 50),
+          ],
+        ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       bottomNavigationBar: Container(
         child: CurvedNavigationBar(
           key: _bottomNavigationKey,

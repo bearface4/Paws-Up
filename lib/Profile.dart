@@ -1,14 +1,11 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:pawsupunf/Home.dart';
 import 'package:pawsupunf/Events.dart';
 import 'package:pawsupunf/Voting.dart';
 import 'package:pawsupunf/updateProf.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:pawsupunf/SignIn.dart'; // Import SignIn.dart
 
 class Profile extends StatefulWidget {
@@ -26,7 +23,6 @@ class _ProfilePageState extends State<Profile> {
   String department = '';
   String section = '';
   String profilePictureURL = '';
-  bool _isUploading = false;
 
   @override
   void initState() {
@@ -44,36 +40,6 @@ class _ProfilePageState extends State<Profile> {
     setState(() {});
   }
 
-  Future<void> uploadProfilePicture() async {
-    setState(() {
-      _isUploading = true;
-    });
-
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      final ref = FirebaseStorage.instance.ref().child("profilePictures/${currentUser!.uid}");
-      await ref.putFile(File(pickedFile.path));
-      final downloadURL = await ref.getDownloadURL();
-      await currentUser!.updatePhotoURL(downloadURL);
-
-      // Store the profile picture URL in Firestore
-      await _firestore.collection('users').doc(currentUser!.uid).update({
-        'profilePictureURL': downloadURL,
-      });
-
-      setState(() {
-        profilePictureURL = downloadURL;
-        _isUploading = false;
-      });
-    } else {
-      setState(() {
-        _isUploading = false;
-      });
-    }
-  }
-
   // Add signOutUser function
   Future<void> signOutUser() async {
     await FirebaseAuth.instance.signOut();
@@ -83,7 +49,6 @@ class _ProfilePageState extends State<Profile> {
           (Route<dynamic> route) => false,
     );
   }
-
 
   Color iconColor(int index) {
     return _page == index ? Color(0xFFFFD700) : Colors.white;
@@ -119,35 +84,12 @@ class _ProfilePageState extends State<Profile> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Stack(
-                    children: <Widget>[
-                      CircleAvatar(
-                        radius: 100,
-                        backgroundImage: profilePictureURL.isNotEmpty
-                            ? NetworkImage(profilePictureURL) as ImageProvider<Object>?
-                            : AssetImage('lib/assets/blue.png'),
-                        child: _isUploading
-                            ? CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF002365)),
-                        )
-                            : null,
-                      ),
-                      Positioned(
-                        bottom: -5,
-                        right: 75,
-                        child: IconButton(
-                          icon: Icon(Icons.camera_alt),
-                          onPressed: () {
-                            uploadProfilePicture();
-                            setState(() {
-                              _isUploading = true;
-                            });
-                          },
-                        ),
-                      ),
-                    ],
+                  CircleAvatar(
+                    radius: 100,
+                    backgroundImage: profilePictureURL.isNotEmpty
+                        ? NetworkImage(profilePictureURL) as ImageProvider<Object>?
+                        : AssetImage('lib/assets/blue.png'),
                   ),
-
                   SizedBox(height: 20),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -182,21 +124,29 @@ class _ProfilePageState extends State<Profile> {
                     children: <Widget>[
                       SizedBox(
                         width: 316,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Color(0xFF002365),
-                              width: 3,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => updateProf()),
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Color(0xFF002365),
+                                width: 3,
+                              ),
+                              borderRadius: BorderRadius.circular(15),
                             ),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          padding: EdgeInsets.symmetric(horizontal: 119, vertical: 10),
-                          child: Text(
-                            'Update Profile',
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              fontFamily: 'Inter',
-                              color: Color(0xFF002365),
+                            padding: EdgeInsets.symmetric(horizontal: 119, vertical: 10),
+                            child: Text(
+                              'Update Profile',
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                fontFamily: 'Inter',
+                                color: Color(0xFF002365),
+                              ),
                             ),
                           ),
                         ),
@@ -303,3 +253,6 @@ class _ProfilePageState extends State<Profile> {
     );
   }
 }
+
+
+

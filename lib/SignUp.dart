@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pawsupunf/Verify.dart';
 
-
 class SignUp extends StatefulWidget {
   @override
   _SignUpState createState() => _SignUpState();
@@ -26,9 +25,16 @@ class _SignUpState extends State<SignUp> {
   bool _isRegistering = false;
   bool _isPasswordMatched = true;
 
-
+  String? _selectedSchool;
   String? _selectedDepartment;
   String? _selectedSection;
+
+  final Map<String, List<String>> _schoolAndDepartments = {
+    'SECA': ['BS-CPE', 'BS-ARCH', 'BS-CE', 'BS CS-ML', 'BS IT-MWA'],
+    'SASE': ['BS-PSY', 'BS-PED', 'AB-COMM'],
+    'SBMA': ['BS-Accountancy', 'BS BA-MktgMgt', 'BS BA-FinMgt', 'BS-MA', 'BS-HM', 'MM'],
+    'SHS': ['STEM', 'ABM', 'HUMMS'],
+  };
 
   final Map<String, List<String>> _departmentAndSections = {
     'BS-CPE': ['CPE211', 'CPE221', 'CPE222', 'CPE231', 'CPE232', 'CPE233'],
@@ -52,14 +58,15 @@ class _SignUpState extends State<SignUp> {
     'BS-TM': ['TOU211', 'TOU212', 'TOU213P', 'TOU214P', 'TOU222', 'TOU223', 'TOU224', 'TOU225', 'TOU221-1', 'TOU221-2', 'TOU222-1',
       'TOU222-2', 'TOU223-1', 'TOU223-2', 'TOU224-1', 'TOU224-2', 'TOU231', 'TOU232', 'TOU233', 'TOU234', 'TOU235', 'TOU236', 'TOU237'],
     'MM': ['MIM231'],
-
+    'STEM': ['2301', '2302', '2303', '2304', '2305', '2306', '2201', '2202', '2203', '2204', '2205', '2206'],
+    'ABM': ['2301', '2302', '2201', '2202'],
+    'HUMMS': ['2301', '2302', '2201'],
   };
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-      ),
+      appBar: AppBar(),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 24.0),
         child: Form(
@@ -111,7 +118,9 @@ class _SignUpState extends State<SignUp> {
               SizedBox(height: 16),
               buildTextFormField(_emailController, 'School Email'),
               SizedBox(height: 16),
-              buildDropdownButtonFormField('Department', _departmentAndSections.keys.toList()),
+              buildDropdownButtonFormField('School', _schoolAndDepartments.keys.toList()),
+              SizedBox(height: 16),
+              buildDropdownButtonFormField('Department', _selectedSchool == null ? [] : _schoolAndDepartments[_selectedSchool]!),
               SizedBox(height: 16),
               buildDropdownButtonFormField('Section', _selectedDepartment == null ? [] : _departmentAndSections[_selectedDepartment]!),
               SizedBox(height: 16),
@@ -125,27 +134,27 @@ class _SignUpState extends State<SignUp> {
               ),
               )
                   : Container(
-                  width: 254.0,  // Set the width to 354
-                 child : ElevatedButton(
-                child: Text('Register Account'),
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    setState(() {
-                      _isRegistering = true;
-                    });
-                    await _registerUser();
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Color(0xFF002363),
-                  onPrimary: Colors.white,
-                  textStyle: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
+                width: 254.0,  // Set the width to 354
+                child : ElevatedButton(
+                  child: Text('Register Account'),
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      setState(() {
+                        _isRegistering = true;
+                      });
+                      await _registerUser();
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Color(0xFF002363),
+                    onPrimary: Colors.white,
+                    textStyle: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
                   ),
                 ),
               ),
@@ -180,7 +189,7 @@ class _SignUpState extends State<SignUp> {
           if (!nameRegExp.hasMatch(value)) {
             return 'Use proper name format';
           }
-      } else if (label == 'Student ID') {
+        } else if (label == 'Student ID') {
           final RegExp studentIdRegExp = RegExp(r'^\d{4}-\d{6}$');
           if (!studentIdRegExp.hasMatch(value)) {
             return 'Student ID format should be YYYY-123456';
@@ -209,7 +218,7 @@ class _SignUpState extends State<SignUp> {
           borderRadius: BorderRadius.circular(15),
         ),
       ),
-      value: label == 'Department' ? _selectedDepartment : _selectedSection,
+      value: label == 'School' ? _selectedSchool : (label == 'Department' ? _selectedDepartment : _selectedSection),
       items: items.map((item) {
         return DropdownMenuItem(
           child: Text(item),
@@ -218,7 +227,11 @@ class _SignUpState extends State<SignUp> {
       }).toList(),
       onChanged: (newValue) {
         setState(() {
-          if (label == 'Department') {
+          if (label == 'School') {
+            _selectedSchool = newValue;
+            _selectedDepartment = null;
+            _selectedSection = null;
+          } else if (label == 'Department') {
             _selectedDepartment = newValue;
             _selectedSection = _departmentAndSections[newValue]!.isNotEmpty ? _departmentAndSections[newValue]!.first : null;
           } else {
@@ -297,15 +310,12 @@ class _SignUpState extends State<SignUp> {
       });
     }
 
-
-
-  try {
+    try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
 
-      // Send email verification
       // Send email verification
       await userCredential.user!.sendEmailVerification();
 
@@ -315,6 +325,7 @@ class _SignUpState extends State<SignUp> {
         'lastName': _lastNameController.text,
         'studentId': _studentIdController.text,
         'email': _emailController.text,
+        'school': _selectedSchool,
         'department': _selectedDepartment,
         'section': _selectedSection,
         'timestamp': FieldValue.serverTimestamp(),
