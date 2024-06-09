@@ -42,15 +42,20 @@ class _ProfilePageState extends State<updateProf> {
 
   Future<void> getUserData() async {
     var document = await _firestore.collection('users').doc(currentUser!.uid).get();
-    firstName = document['firstName'];
-    lastName = document['lastName'];
-    studentId = document['studentId'];
-    email = document['email'];
-    department = document['department'];
-    section = document['section'];
-    profilePictureURL = document['profilePictureURL'] ?? '';
-    departmentController.text = department;
-    sectionController.text = section;
+    var data = document.data();
+
+    if (data != null) {
+      firstName = data['firstName'] ?? '';
+      lastName = data['lastName'] ?? '';
+      studentId = data['studentId'] ?? '';
+      email = data['email'] ?? '';
+      department = data['department'] ?? '';
+      section = data['section'] ?? '';
+      profilePictureURL = data.containsKey('profilePictureURL') ? data['profilePictureURL'] : '';
+      departmentController.text = department;
+      sectionController.text = section;
+    }
+
     setState(() {});
   }
 
@@ -148,9 +153,9 @@ class _ProfilePageState extends State<updateProf> {
               children: <Widget>[
                 CircleAvatar(
                   radius: 100,
-                  backgroundImage: profilePictureURL.isNotEmpty
+                  backgroundImage: (profilePictureURL != null && profilePictureURL.isNotEmpty)
                       ? NetworkImage(profilePictureURL) as ImageProvider<Object>?
-                      : AssetImage('lib/assets/default_profile_pic.png'),
+                      : AssetImage('lib/assets/blue.png'),
                   child: _isUploading
                       ? CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF002365)),

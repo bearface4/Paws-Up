@@ -32,11 +32,16 @@ class _ProfilePageState extends State<Profile> {
 
   Future<void> getUserData() async {
     var document = await _firestore.collection('users').doc(currentUser!.uid).get();
-    firstName = document['firstName'];
-    lastName = document['lastName'];
-    department = document['department'];
-    section = document['section'];
-    profilePictureURL = document['profilePictureURL'] ?? '';
+    var data = document.data();
+
+    if (data != null) {
+      firstName = data['firstName'] ?? '';
+      lastName = data['lastName'] ?? '';
+      department = data['department'] ?? '';
+      section = data['section'] ?? '';
+      profilePictureURL = data.containsKey('profilePictureURL') ? data['profilePictureURL'] : '';
+    }
+
     setState(() {});
   }
 
@@ -86,8 +91,8 @@ class _ProfilePageState extends State<Profile> {
                 children: <Widget>[
                   CircleAvatar(
                     radius: 100,
-                    backgroundImage: profilePictureURL.isNotEmpty
-                        ? NetworkImage(profilePictureURL) as ImageProvider<Object>?
+                    backgroundImage: (profilePictureURL != null && profilePictureURL.isNotEmpty)
+                        ? NetworkImage(profilePictureURL) as ImageProvider?
                         : AssetImage('lib/assets/blue.png'),
                   ),
                   SizedBox(height: 20),
