@@ -3,10 +3,11 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:card_swiper/card_swiper.dart';
 import 'package:pawsupunf/Events.dart';
 import 'package:pawsupunf/Voting.dart';
 import 'package:pawsupunf/Profile.dart';
-
+import 'package:intl/intl.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,19 +26,34 @@ class MyApp extends StatelessWidget {
 
 class Home extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _HomeState createState() => _HomeState();
 }
 
-class _MyHomePageState extends State<Home> {
+class _HomeState extends State<Home> {
   int _page = 0;
   GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
   TextEditingController _searchController = TextEditingController();
   String? _userName;
+  String _searchQuery = "";
 
   @override
   void initState() {
     super.initState();
     _loadCurrentUserName();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      _searchQuery = _searchController.text;
+    });
   }
 
   Future<void> _loadCurrentUserName() async {
@@ -54,6 +70,21 @@ class _MyHomePageState extends State<Home> {
 
   Color iconColor(int index) {
     return _page == index ? Color(0xFFFFD700) : Colors.white;
+  }
+
+  void _showFullImage(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
+      barrierDismissible: true, // Allows the dialog to be dismissed by clicking outside
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            color: Colors.black,
+            child: Image.network(imageUrl),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -93,10 +124,19 @@ class _MyHomePageState extends State<Home> {
               children: <Widget>[
                 Expanded(
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), spreadRadius: 1, blurRadius: 2, offset: Offset(0, 1))]),
-                    child: TextFormField(controller: _searchController, decoration: InputDecoration(border: InputBorder.none, suffixIcon: Padding(padding: EdgeInsets.only(right: 0), child: Icon(Icons.search)))),
-                  ),
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), spreadRadius: 1, blurRadius: 2, offset: Offset(0, 1))]),
+                      child: TextFormField(
+                        controller: _searchController,
+                        cursorColor:Color (0xFFFFD700),
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          suffixIcon: Padding(
+                            padding: EdgeInsets.only(right: 0),
+                            child: Icon(Icons.search),
+                          ),
+                        ),
+                      )),
                 ),
                 IconButton(icon: Image.asset('lib/assets/setting2.png'), onPressed: () {}),
               ],
@@ -107,58 +147,119 @@ class _MyHomePageState extends State<Home> {
             top: 280.0,
             left: 0,
             right: 0,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(left: 15.0, right: 15.0),
-                    child: Card(
-                      color: Color(0xFFD2E1F1),
-                      elevation: 5.0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Row(
-                              children: <Widget>[
-                                CircleAvatar(radius: 20.0, backgroundImage: AssetImage('lib/assets/sgpic.jpg'), backgroundColor: Colors.transparent),
-                                SizedBox(width: 8.0),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Text('Student Government', style: TextStyle(fontFamily: 'Sansation', fontWeight: FontWeight.bold, fontSize: 16.0)),
-                                    Text('Just Now', style: TextStyle(fontFamily: 'Sansation', color: Colors.grey, fontSize: 12.0)),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 10.0),
-                            Text('SDAO ADVISORY', style: TextStyle(fontFamily: 'Sansation', fontWeight: FontWeight.bold, fontSize: 18.0)),
-                            SizedBox(height: 10.0),
-                            Text(
-                              'As communicated by the Student Discipline Office (SDO), students are permitted to wear civilian attire on Thursday (April 11) and Friday (April 12), but it is limited to any NU merchandise (including NSTP shirts, PE uniforms, and organization shirts) and must adhere to the University\'s dress code.',
-                              style: TextStyle(fontSize: 14.0, fontFamily: 'Sansation'),
-                            ),
-                            SizedBox(height: 10.0),
-                            Text('Furthermore, ALL students are required to wear their Prescribed Uniform starting April 15, 2024.', style: TextStyle(fontFamily: 'Sansation', fontSize: 14.0)),
-                            Column(
+            child: StreamBuilder(
+              stream: FirebaseFirestore.instance.collection('announcements').orderBy('timestamp', descending: true).snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                final data = snapshot.requireData;
+                final filteredData = data.docs.where((announcement) {
+                  Map<String, dynamic> announcementData = announcement.data() as Map<String, dynamic>;
+                  String description = announcementData['description'] ?? '';
+                  return RegExp(_searchQuery, caseSensitive: false).hasMatch(description);
+                }).toList();
+
+                return SingleChildScrollView(
+                  child: Column(
+                    children: filteredData.map((announcement) {
+                      Map<String, dynamic> announcementData = announcement.data() as Map<String, dynamic>;
+                      String profileImage = announcementData['profileImage'] ?? 'default_profile_image_url';
+                      String orgName = announcementData['orgName'] ?? 'Unknown Organization';
+                      Timestamp timestamp = announcementData['timestamp'] ?? Timestamp.now();
+                      String description = announcementData['description'] ?? 'No description available.';
+                      List<dynamic>? imageUrls = announcementData['imageUrls'];
+                      String? imageUrl = announcementData['imageUrl'];
+
+                      return Padding(
+                        padding: EdgeInsets.only(left: 15.0, right: 15.0, bottom: 20.0),
+                        child: Card(
+                          color: Color(0xFFD2E1F1),
+                          elevation: 5.0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                Text('Please adhere to these guidelines accordingly.', style: TextStyle(fontFamily: 'Sansation', fontSize: 14.0)),
+                                Row(
+                                  children: <Widget>[
+                                    CircleAvatar(radius: 20.0, backgroundImage: NetworkImage(profileImage), backgroundColor: Colors.transparent),
+                                    SizedBox(width: 8.0),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Text(orgName, style: TextStyle(fontFamily: 'Sansation', fontWeight: FontWeight.bold, fontSize: 16.0)),
+                                        Text(DateFormat('hh:mm a').format(timestamp.toDate()), // Format the timestamp
+                                          style: TextStyle(fontFamily: 'Sansation', color: Colors.grey, fontSize: 12.0),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                                 SizedBox(height: 10.0),
-                                Image.asset('lib/assets/testpic.jpg'),
+                                Text(description, style: TextStyle(fontSize: 14.0, fontFamily: 'Sansation')),
+                                SizedBox(height: 10.0),
+                                if (imageUrls != null)
+                                  Container(
+                                    height: 300,
+                                    child: Swiper(
+                                      itemBuilder: (BuildContext context, int index) {
+                                        return GestureDetector(
+                                          onTap: () => _showFullImage(context, imageUrls[index]),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(20.0),
+                                            child: SizedBox(
+                                              width: 300,
+                                              height: 300,
+                                              child: Image.network(
+                                                imageUrls[index],
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      itemCount: imageUrls.length,
+                                      itemWidth: 300.0,
+                                      itemHeight: 300.0,
+                                      layout: SwiperLayout.STACK,
+                                      loop: false, // Disable looping
+                                      pagination: SwiperPagination(
+                                        builder: DotSwiperPaginationBuilder(
+                                          activeColor:  Color(0xFFFFD700),// Active bullet color
+                                          color: Colors.grey, // Inactive bullet color
+                                        ),
+                                      ), // Add pagination bullets with custom colors
+                                    ),
+                                  ),
+                                if (imageUrl != null)
+                                  GestureDetector(
+                                    onTap: () => _showFullImage(context, imageUrl),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                      child: SizedBox(
+                                        width: 300,
+                                        height: 300,
+                                        child: Image.network(
+                                          imageUrl,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                               ],
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    }).toList(),
                   ),
-                  SizedBox(height: 20),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ],
