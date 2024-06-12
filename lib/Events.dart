@@ -580,7 +580,7 @@ class _EventsState extends State<Events> {
             ),
             onPressed: null, // Disable the button
             style: ElevatedButton.styleFrom(
-              // This color is ignored because the button is disabled
+              primary: Color(0xFF5A8DEA), // This color is ignored because the button is disabled
               onPrimary: Colors.black,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
