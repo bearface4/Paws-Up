@@ -580,8 +580,8 @@ class _EventsState extends State<Events> {
             ),
             onPressed: null, // Disable the button
             style: ElevatedButton.styleFrom(
-              primary: Color(0xFF5A8DEA), // This color is ignored because the button is disabled
-              onPrimary: Colors.black,
+              backgroundColor: Color(0xFF5A8DEA), // This color is ignored because the button is disabled
+              foregroundColor: Colors.black,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
@@ -620,8 +620,8 @@ class _EventsState extends State<Events> {
               _showRegisterDialog(context, eventDocumentId, link);
             },
             style: ElevatedButton.styleFrom(
-              primary: Color(0xFF002365),
-              onPrimary: Colors.white,
+              backgroundColor: Color(0xFF002365),
+              foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),

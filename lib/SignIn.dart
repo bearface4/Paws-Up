@@ -270,8 +270,8 @@ class _LoginScreenState extends State<SignIn> {
                     height: 59,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        primary: Color(0xFF002363),
-                        onPrimary: Colors.white,
+                        backgroundColor: Color(0xFF002363),
+                        foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
                         padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
                       ),

@@ -300,8 +300,8 @@ class _ChangePasswordState extends State<changePass> {
                         width: 300,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            primary: Color(0xFF002365),
-                            onPrimary: Colors.white,
+                            backgroundColor: Color(0xFF002365),
+                            foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15.0),
                             ),

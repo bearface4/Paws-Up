@@ -1268,8 +1268,8 @@ class _VotingSheetState extends State<VotingSheet> {
                             },
                             child: Text('Submit'),
                             style: ElevatedButton.styleFrom(
-                              primary: Colors.yellow,
-                              onPrimary: Colors.black,
+                              backgroundColor: Colors.yellow,
+                              foregroundColor: Colors.black,
                               shape: StadiumBorder(),
                             ),
                           ),

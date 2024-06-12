@@ -147,8 +147,8 @@ class _SignUpState extends State<SignUp> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        primary: Color(0xFF002363),
-                        onPrimary: Colors.white,
+                        foregroundColor: Color(0xFF002363),
+                        backgroundColor: Colors.white,
                         textStyle: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
