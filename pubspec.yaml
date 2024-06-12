@@ -10,7 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  device_preview: ^1.1.0
   curved_navigation_bar: ^1.0.3
   cupertino_icons: ^1.0.2
   lottie: ^3.1.0
@@ -23,7 +22,6 @@ dependencies:
   firebase_storage: ^11.6.9
   another_flutter_splash_screen: ^1.2.0
   card_swiper: ^3.0.1
-  intl: ^0.18.1
   url_launcher: ^6.3.0
 
 dev_dependencies:
