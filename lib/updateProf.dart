@@ -25,11 +25,9 @@ class _ProfilePageState extends State<updateProf> {
   String email = '';
   String department = '';
   String section = '';
+  String school = '';
   String profilePictureURL = '';
   bool _isUploading = false;
-  bool _isEditingDepartment = false;
-  bool _isEditingSection = false;
-  bool _isUpdating = false;
 
   TextEditingController departmentController = TextEditingController();
   TextEditingController sectionController = TextEditingController();
@@ -45,18 +43,19 @@ class _ProfilePageState extends State<updateProf> {
     var data = document.data();
 
     if (data != null) {
-      firstName = data['firstName'] ?? '';
-      lastName = data['lastName'] ?? '';
-      studentId = data['studentId'] ?? '';
-      email = data['email'] ?? '';
-      department = data['department'] ?? '';
-      section = data['section'] ?? '';
-      profilePictureURL = data.containsKey('profilePictureURL') ? data['profilePictureURL'] : '';
-      departmentController.text = department;
-      sectionController.text = section;
+      setState(() {
+        firstName = data['firstName'] ?? '';
+        lastName = data['lastName'] ?? '';
+        studentId = data['studentId'] ?? '';
+        email = data['email'] ?? '';
+        department = data['department'] ?? '';
+        section = data['section'] ?? '';
+        school = data['school'] ?? '';
+        profilePictureURL = data.containsKey('profilePictureURL') ? data['profilePictureURL'] : '';
+        departmentController.text = department;
+        sectionController.text = section;
+      });
     }
-
-    setState(() {});
   }
 
   Future<void> uploadProfilePicture() async {
@@ -89,27 +88,6 @@ class _ProfilePageState extends State<updateProf> {
     }
   }
 
-  Future<void> updateUserData() async {
-    setState(() {
-      _isUpdating = true;
-    });
-
-    await _firestore.collection('users').doc(currentUser!.uid).update({
-      'department': departmentController.text,
-      'section': sectionController.text,
-    });
-
-    await Future.delayed(Duration(seconds: 2));
-
-    setState(() {
-      _isUpdating = false;
-      _isEditingDepartment = false;
-      _isEditingSection = false;
-    });
-
-    showSnackBar(context, 'Profile updated successfully');
-  }
-
   void showSnackBar(BuildContext context, String message) {
     final snackBar = SnackBar(
       content: Text(message),
@@ -135,6 +113,7 @@ class _ProfilePageState extends State<updateProf> {
         ),
       ),
       body: SingleChildScrollView(
+    child: Center(
         child: Column(
           children: <Widget>[
             SizedBox(height: 50.0),
@@ -258,7 +237,27 @@ class _ProfilePageState extends State<updateProf> {
                   SizedBox(
                     width: 300,
                     child: TextField(
-                      readOnly: !_isEditingDepartment,
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        labelText: 'School',
+                        border: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                      ),
+                      controller: TextEditingController(text: school),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  SizedBox(
+                    width: 300,
+                    child: TextField(
+                      readOnly: true,
                       decoration: InputDecoration(
                         labelText: 'Department',
                         border: UnderlineInputBorder(
@@ -270,17 +269,6 @@ class _ProfilePageState extends State<updateProf> {
                         focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(color: Colors.black),
                         ),
-                        suffixIcon: IconButton(
-                          icon: Icon(Icons.edit),
-                          onPressed: () {
-                            setState(() {
-                              _isEditingDepartment = !_isEditingDepartment;
-                              if (_isEditingDepartment) {
-                                showSnackBar(context, 'Department is now editable');
-                              }
-                            });
-                          },
-                        ),
                       ),
                       controller: departmentController,
                     ),
@@ -289,7 +277,7 @@ class _ProfilePageState extends State<updateProf> {
                   SizedBox(
                     width: 300,
                     child: TextField(
-                      readOnly: !_isEditingSection,
+                      readOnly: true,
                       decoration: InputDecoration(
                         labelText: 'Section',
                         border: UnderlineInputBorder(
@@ -301,49 +289,17 @@ class _ProfilePageState extends State<updateProf> {
                         focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(color: Colors.black),
                         ),
-                        suffixIcon: IconButton(
-                          icon: Icon(Icons.edit),
-                          onPressed: () {
-                            setState(() {
-                              _isEditingSection = !_isEditingSection;
-                              if (_isEditingSection) {
-                                showSnackBar(context, 'Section is now editable');
-                              }
-                            });
-                          },
-                        ),
                       ),
                       controller: sectionController,
                     ),
                   ),
-                  SizedBox(height: 20),
-                  Center(
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        _isUpdating
-                            ? Container()
-                            : FloatingActionButton.extended(
-                          onPressed: _isUpdating ? null : updateUserData,
-                          label: Text(
-                            'Update',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          backgroundColor: Color(0xFF002365),
-                        ),
-                        if (_isUpdating)
-                          CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF002365)),
-                          ),
-                      ],
-                    ),
-                  ),
+                  SizedBox(height: 50),
                 ],
               ),
             ),
-            SizedBox(height: 50),
           ],
         ),
+      ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       bottomNavigationBar: Container(

@@ -40,10 +40,36 @@ Future<Map<String, dynamic>> getCurrentUserDetails() async {
   }
 }
 
-Future<List<String>> getAllEventDocumentIds() async {
-  QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('events').get();
-  return querySnapshot.docs.map((doc) => doc.id).toList();
+Future<List<QueryDocumentSnapshot>> fetchEvents(String userDepartment, String userSchool) async {
+  List<QueryDocumentSnapshot> events = [];
+
+  // Fetch events where the filter matches the user's department
+  QuerySnapshot departmentEvents = await FirebaseFirestore.instance
+      .collection('events')
+      .where('filter', isEqualTo: userDepartment)
+      .get();
+  events.addAll(departmentEvents.docs);
+
+  // Fetch events where the filter matches the user's school
+  QuerySnapshot schoolEvents = await FirebaseFirestore.instance
+      .collection('events')
+      .where('filter', isEqualTo: userSchool)
+      .get();
+  events.addAll(schoolEvents.docs);
+
+  // Fetch events open to everyone
+  QuerySnapshot everyoneEvents = await FirebaseFirestore.instance
+      .collection('events')
+      .where('filter', isEqualTo: 'Everyone')
+      .get();
+  events.addAll(everyoneEvents.docs);
+
+  // Remove duplicate events
+  final uniqueEvents = events.toSet().toList();
+
+  return uniqueEvents;
 }
+
 
 class _EventsState extends State<Events> {
   int _page = 1; // Set the initial page to Events (0-based index)
@@ -122,11 +148,20 @@ class _EventsState extends State<Events> {
                     });
 
                     Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registered successfully!')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Registered successfully!'),
+                        backgroundColor: Color(0xFFFFD700), // Sets the Snackbar color to gold
+                      ),
+                    );
                     setState(() {}); // Update the state to reflect the registration status
+
                   } catch (e) {
                     Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registration failed: $e')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Registration failed: $e'),
+                          backgroundColor: Colors.red,
+                        ));
                   }
                 },
               ),
@@ -158,11 +193,19 @@ class _EventsState extends State<Events> {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('External Link'),
+          title: Text('External Link',
+            style: TextStyle(
+              color: Color(0xFF002365),
+            ),
+          ),
           content: Text('Do you want to visit the registration page?'),
           actions: <Widget>[
             TextButton(
-              child: Text('Yes'),
+              child: Text('Yes',
+                style: TextStyle(
+                  color: Color(0xFF002365),
+                ),
+              ),
               onPressed: () async {
                 final Uri _url = Uri.parse(link);
                 if (!await launchUrl(_url)) {
@@ -172,7 +215,11 @@ class _EventsState extends State<Events> {
               },
             ),
             TextButton(
-              child: Text('No'),
+              child: Text('No',
+                style: TextStyle(
+                  color: Color(0xFF002365),
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -185,16 +232,21 @@ class _EventsState extends State<Events> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          Container(color: Colors.white),
-          _buildHeader(),
-          _buildSearchBar(),
-          _buildEventList(),
-        ],
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        body: Stack(
+          children: <Widget>[
+            Container(color: Colors.white),
+            _buildHeader(),
+            _buildSearchBar(),
+            _buildEventList(),
+          ],
+        ),
+        bottomNavigationBar: _buildBottomNavigationBar(),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 
@@ -245,7 +297,7 @@ class _EventsState extends State<Events> {
               ),
               child: TextField(
                 controller: _searchController,
-                cursorColor: Color(0xFFFFD700),// Set the cursor color to gold
+                cursorColor: Color(0xFFFFD700), // Set the cursor color to gold
                 onChanged: (value) {
                   setState(() {
                     _searchQuery = value;
@@ -277,45 +329,68 @@ class _EventsState extends State<Events> {
       left: 15.0,
       right: 10.0,
       bottom: 0.0,
-      child: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('events').snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+      child: FutureBuilder<Map<String, dynamic>>(
+        future: getCurrentUserDetails(),
+        builder: (context, userSnapshot) {
+          if (userSnapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('No events found'));
+          } else if (userSnapshot.hasError) {
+            return Center(child: Text('Error: ${userSnapshot.error}'));
+          } else if (!userSnapshot.hasData) {
+            return Center(child: Text('No user data found'));
           } else {
-            List<QueryDocumentSnapshot> events = snapshot.data!.docs;
-            String searchQuery = _searchQuery.toLowerCase();
-            RegExp regExp = RegExp(searchQuery, caseSensitive: false);
+            Map<String, dynamic> userDetails = userSnapshot.data!;
+            String userDepartment = userDetails['department'];
+            String userSchool = userDetails['school'];
 
-            List<QueryDocumentSnapshot> filteredEvents = events.where((eventDoc) {
-              Map<String, dynamic> event = eventDoc.data() as Map<String, dynamic>;
-              String title = event['title']?.toLowerCase() ?? '';
-              String description = event['description']?.toLowerCase() ?? '';
-              return regExp.hasMatch(title) || regExp.hasMatch(description);
-            }).toList();
+            return StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('events')
+                  .where('filter', whereIn: [userDepartment, userSchool, 'Everyone'])
+                  .orderBy('timestamp', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(child: Text('No events found'));
+                } else {
+                  List<QueryDocumentSnapshot> events = snapshot.data!.docs;
+                  String searchQuery = _searchQuery.toLowerCase();
+                  RegExp regExp = RegExp(searchQuery, caseSensitive: false);
 
-            return SingleChildScrollView(
-              child: Column(
-                children: filteredEvents.map((eventDoc) {
-                  Map<String, dynamic> event = eventDoc.data() as Map<String, dynamic>;
-                  return Column(
-                    children: [
-                      _buildEventCard(event, eventDoc.id),
-                      SizedBox(height: 20), // Add space between event cards
-                    ],
+                  List<QueryDocumentSnapshot> filteredEvents = events.where((eventDoc) {
+                    Map<String, dynamic> event = eventDoc.data() as Map<String, dynamic>;
+                    String title = event['title']?.toLowerCase() ?? '';
+                    String description = event['description']?.toLowerCase() ?? '';
+                    return regExp.hasMatch(title) || regExp.hasMatch(description);
+                  }).toList();
+
+                  return SingleChildScrollView(
+                    child: Column(
+                      children: filteredEvents.map((eventDoc) {
+                        Map<String, dynamic> event = eventDoc.data() as Map<String, dynamic>;
+                        return Column(
+                          children: [
+                            _buildEventCard(event, eventDoc.id),
+                            SizedBox(height: 20), // Add space between event cards
+                          ],
+                        );
+                      }).toList(),
+                    ),
                   );
-                }).toList(),
-              ),
+                }
+              },
             );
           }
         },
       ),
     );
   }
+
+
 
   Widget _buildEventCard(Map<String, dynamic> event, String eventDocumentId) {
     return Card(
@@ -346,6 +421,7 @@ class _EventsState extends State<Events> {
     );
   }
 
+
   Widget _buildEventHeader(Map<String, dynamic> event) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -360,17 +436,40 @@ class _EventsState extends State<Events> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                event['orgName'] ?? 'Unknown Organization',
-                style: TextStyle(
-                  fontFamily: 'Sansation',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16.0,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    event['orgName'] ?? 'Unknown Organization',
+                    style: TextStyle(
+                      fontFamily: 'Sansation',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Image.asset(
+                        'lib/assets/group.png', // Replace with your filter icon path
+                        width: 20,
+                        height: 20,
+                      ),
+                      SizedBox(width: 5), // Space between icon and text
+                      Text(
+                        event['filter'] ?? 'No filter',
+                        style: TextStyle(
+                          fontFamily: 'Sansation',
+                          fontSize: 14.0,
+                          color: Color(0xFF002365),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
               Text(
                 event['timestamp'] != null
-                    ? DateFormat('hh:mm a').format(DateTime.fromMillisecondsSinceEpoch(event['timestamp'].seconds * 1000))
+                    ? DateFormat('MM/dd/yyyy, hh:mm a').format(DateTime.fromMillisecondsSinceEpoch(event['timestamp'].seconds * 1000))
                     : 'No timestamp',
                 style: TextStyle(
                   fontFamily: 'Sansation',
@@ -403,6 +502,8 @@ class _EventsState extends State<Events> {
       ],
     );
   }
+
+
 
   Widget _buildEventImage(String imageUrl) {
     return Container(

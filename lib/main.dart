@@ -9,6 +9,7 @@ import 'package:pawsupunf/SignUp.dart';
 import 'package:pawsupunf/Voting.dart';
 import 'package:pawsupunf/VotingSheet.dart';
 import 'package:pawsupunf/Verify.dart';
+import 'package:pawsupunf/changePass.dart';
 import 'package:pawsupunf/firebase_options.dart';
 import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
 import 'package:pawsupunf/updateProf.dart';
@@ -30,6 +31,7 @@ void main() async {
       '/VotingSheet': (context) => VotingSheet(),
       '/Verify': (context) => Verify(),
       '/updateProf': (context) => updateProf(),
+      '/changePass': (context) => changePass(),
     },
   ));
 }
