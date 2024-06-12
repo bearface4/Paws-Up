@@ -141,6 +141,7 @@ class _EventsState extends State<Events> {
                         .add({
                       'firstName': userDetails['firstName'],
                       'lastName': userDetails['lastName'],
+                      'section': userDetails['section'],
                       'department': userDetails['department'],
                       'email': userDetails['email'],
                       'studentId': userDetails['studentId'],

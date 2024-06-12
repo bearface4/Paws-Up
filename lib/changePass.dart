@@ -141,8 +141,8 @@ class _ChangePasswordState extends State<changePass> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 50.0),
             child: Card(
-              color: Color(0xAFC4ECFF),
-              elevation: 15,
+              color: Colors.white,
+              elevation: 25,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0),
               ),
