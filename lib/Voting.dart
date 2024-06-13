@@ -56,10 +56,6 @@ class _VotingState extends State<Voting> {
                           children: <Widget>[
                             GestureDetector(
                               onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => VotingSheet()),
-                                );
                               },
                               child: Card(
                                 color: Color(0xFFD2E1F1),
@@ -95,7 +91,14 @@ class _VotingState extends State<Voting> {
                         ),
                         Column(
                           children: <Widget>[
-                            Card(
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => VotingSheet()),
+                                );
+                              },
+                          child:Card(
                               color: Color(0xFFD2E1F1),
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
@@ -124,6 +127,7 @@ class _VotingState extends State<Voting> {
                                 ),
                               ),
                             ),
+                            )
                           ],
                         ),
                       ],

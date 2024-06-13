@@ -70,12 +70,12 @@ Future<List<QueryDocumentSnapshot>> fetchEvents(String userDepartment, String us
   return uniqueEvents;
 }
 
-
 class _EventsState extends State<Events> {
   int _page = 1; // Set the initial page to Events (0-based index)
   final GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  bool _isNewestFirst = true; // Default to showing newest events first
 
   @override
   void dispose() {
@@ -231,6 +231,49 @@ class _EventsState extends State<Events> {
     );
   }
 
+  void _showFilterOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: Image.asset('lib/assets/sortz.png'),
+                title: Text('Newest to Oldest',
+                  style: TextStyle(
+                    color: Color(0xFF002365),
+                  ),
+                ),
+                onTap: () {
+                  setState(() {
+                    _isNewestFirst = true;
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Image.asset('lib/assets/sortz.png'),
+                title: Text('Oldest to Newest',
+                  style: TextStyle(
+                    color: Color(0xFF002365),
+                  ),
+                ),
+                onTap: () {
+                  setState(() {
+                    _isNewestFirst = false;
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -316,13 +359,14 @@ class _EventsState extends State<Events> {
           ),
           IconButton(
             icon: Image.asset('lib/assets/setting2.png'),
-            onPressed: () {},
+            onPressed: () {
+              _showFilterOptions(context);
+            },
           ),
         ],
       ),
     );
   }
-
 
   Widget _buildEventList() {
     return Positioned(
@@ -348,7 +392,7 @@ class _EventsState extends State<Events> {
               stream: FirebaseFirestore.instance
                   .collection('events')
                   .where('filter', whereIn: [userDepartment, userSchool, 'Everyone'])
-                  .orderBy('timestamp', descending: true)
+                  .orderBy('timestamp', descending: _isNewestFirst)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -391,8 +435,6 @@ class _EventsState extends State<Events> {
     );
   }
 
-
-
   Widget _buildEventCard(Map<String, dynamic> event, String eventDocumentId) {
     return Card(
       shape: RoundedRectangleBorder(
@@ -421,7 +463,6 @@ class _EventsState extends State<Events> {
       ),
     );
   }
-
 
   Widget _buildEventHeader(Map<String, dynamic> event) {
     return Row(
@@ -504,8 +545,6 @@ class _EventsState extends State<Events> {
     );
   }
 
-
-
   Widget _buildEventImage(String imageUrl) {
     return Container(
       width: 300,
@@ -562,75 +601,75 @@ class _EventsState extends State<Events> {
 
   Widget _buildRegisterButton(String eventDocumentId, String? link) {
     return FutureBuilder<bool>(
-      future: isUserRegistered(eventDocumentId),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else if (snapshot.hasData && snapshot.data == true) {
-          return ElevatedButton.icon(
-            icon: Image.asset('lib/assets/regis.png', width: 24, height: 24),
-            label: Text(
-              'Registered',
-              style: TextStyle(
-                fontFamily: 'Sansation',
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            onPressed: null, // Disable the button
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF5A8DEA), // This color is ignored because the button is disabled
-              foregroundColor: Colors.black,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-            ).copyWith(
-              backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                    (Set<MaterialState> states) {
-                  if (states.contains(MaterialState.disabled)) {
-                    return Color(0xFF5A8DEA); // Set the disabled background color to red
-                  }
-                  return Color(0xFF5A8DEA); // Default color
-                },
-              ),
-              foregroundColor: MaterialStateProperty.resolveWith<Color>(
-                    (Set<MaterialState> states) {
-                  if (states.contains(MaterialState.disabled)) {
-                    return Colors.white; // Set the disabled foreground color
-                  }
-                  return Colors.white; // Default color
-                },
-              ),
-            ),
-          );
-        } else {
-          return ElevatedButton.icon(
-            icon: Image.asset('lib/assets/regis.png', width: 24, height: 24),
-            label: Text(
-              'Register',
-              style: TextStyle(
-                fontFamily: 'Sansation',
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            onPressed: () {
-              _showRegisterDialog(context, eventDocumentId, link);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF002365),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-            ),
-          );
-        }
-      },
+        future: isUserRegistered(eventDocumentId),
+    builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+    return CircularProgressIndicator();
+    } else if (snapshot.hasError) {
+    return Text('Error: ${snapshot.error}');
+    } else if (snapshot.hasData && snapshot.data == true) {
+    return ElevatedButton.icon(
+      icon: Image.asset('lib/assets/regis.png', width: 24, height: 24),
+      label: Text(
+        'Registered',
+        style: TextStyle(
+          fontFamily: 'Sansation',
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+      onPressed: null, // Disable the button
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Color(0xFF5A8DEA), // This color is ignored because the button is disabled
+        foregroundColor: Colors.black,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+      ).copyWith(
+        backgroundColor: MaterialStateProperty.resolveWith<Color>(
+              (Set<MaterialState> states) {
+            if (states.contains(MaterialState.disabled)) {
+              return Color(0xFF5A8DEA); // Set the disabled background color to blue
+            }
+            return Color(0xFF5A8DEA); // Default color
+          },
+        ),
+        foregroundColor: MaterialStateProperty.resolveWith<Color>(
+              (Set<MaterialState> states) {
+            if (states.contains(MaterialState.disabled)) {
+              return Colors.white; // Set the disabled foreground color
+            }
+            return Colors.white; // Default color
+          },
+        ),
+      ),
+    );
+    } else {
+      return ElevatedButton.icon(
+        icon: Image.asset('lib/assets/regis.png', width: 24, height: 24),
+        label: Text(
+          'Register',
+          style: TextStyle(
+            fontFamily: 'Sansation',
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        onPressed: () {
+          _showRegisterDialog(context, eventDocumentId, link);
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Color(0xFF002365),
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+        ),
+      );
+    }
+    },
     );
   }
 

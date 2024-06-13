@@ -60,12 +60,11 @@ class _VotingSheetState extends State<VotingSheet> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                        'Student \nGovernment',
+                        'Computer \nSociety',
                         style: TextStyle(
                           color: Color(0xFF002365),
-                          fontFamily: 'Playfair Display',
+                          fontFamily: 'Inter',
                           fontWeight: FontWeight.w700,
-                          decoration: TextDecoration.underline,
                           fontSize: 50.0, //change the size as you need
                         )
                     ),
@@ -75,7 +74,7 @@ class _VotingSheetState extends State<VotingSheet> {
                     child: Text(
                         'President',
                         style: TextStyle(
-                          fontFamily: 'Playfair Display',
+                          fontFamily: 'Inter',
                           fontWeight: FontWeight.w700,
                           fontSize: 20.0,
                           color: Color(0xFF002365),
@@ -102,14 +101,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 1',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -154,14 +153,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 2',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -205,14 +204,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 3',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -241,7 +240,7 @@ class _VotingSheetState extends State<VotingSheet> {
                     child: Text(
                         'Vice President Internal',
                         style: TextStyle(
-                          fontFamily: 'Playfair Display',
+                          fontFamily: 'Inter',
                           fontWeight: FontWeight.w700,
                           fontSize: 20.0,
                           color: Color(0xFF002365),
@@ -268,7 +267,7 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 1',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
@@ -320,14 +319,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 2',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -371,14 +370,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 3',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -407,7 +406,7 @@ class _VotingSheetState extends State<VotingSheet> {
                     child: Text(
                         'Vice President External',
                         style: TextStyle(
-                          fontFamily: 'Playfair Display',
+                          fontFamily: 'Inter',
                           fontWeight: FontWeight.w700,
                           fontSize: 20.0,
                           color: Color(0xFF002365),
@@ -421,7 +420,7 @@ class _VotingSheetState extends State<VotingSheet> {
                       children: [
                         CircleAvatar(
                           radius: 40,
-                          backgroundImage: AssetImage('lib/assets/kirk.jpg'),
+                          backgroundImage: AssetImage('lib/assets/edd.jpg'),
                         ),
                         SizedBox(width: 10),
                         Expanded(
@@ -434,14 +433,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 1',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -485,14 +484,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 2',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -536,14 +535,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 3',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -572,7 +571,7 @@ class _VotingSheetState extends State<VotingSheet> {
                     child: Text(
                         'Secretary',
                         style: TextStyle(
-                          fontFamily: 'Playfair Display',
+                          fontFamily: 'Inter',
                           fontWeight: FontWeight.w700,
                           fontSize: 20.0,
                           color: Color(0xFF002365),
@@ -599,14 +598,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 1',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -651,14 +650,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 2',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -702,14 +701,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 3',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -738,7 +737,7 @@ class _VotingSheetState extends State<VotingSheet> {
                     child: Text(
                         'Auditor',
                         style: TextStyle(
-                          fontFamily: 'Playfair Display',
+                          fontFamily: 'Inter',
                           fontWeight: FontWeight.w700,
                           fontSize: 20.0,
                           color: Color(0xFF002365),
@@ -765,14 +764,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 1',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -817,14 +816,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 2',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -868,14 +867,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 3',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -904,7 +903,7 @@ class _VotingSheetState extends State<VotingSheet> {
                     child: Text(
                         'Treasurer',
                         style: TextStyle(
-                          fontFamily: 'Playfair Display',
+                          fontFamily: 'Inter',
                           fontWeight: FontWeight.w700,
                           fontSize: 20.0,
                           color: Color(0xFF002365),
@@ -931,14 +930,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 1',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -983,14 +982,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 2',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -1034,14 +1033,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 3',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -1070,7 +1069,7 @@ class _VotingSheetState extends State<VotingSheet> {
                     child: Text(
                         'P.R.O',
                         style: TextStyle(
-                          fontFamily: 'Playfair Display',
+                          fontFamily: 'Inter',
                           fontWeight: FontWeight.w700,
                           fontSize: 20.0,
                           color: Color(0xFF002365),
@@ -1084,7 +1083,7 @@ class _VotingSheetState extends State<VotingSheet> {
                       children: [
                         CircleAvatar(
                           radius: 40,
-                          backgroundImage: AssetImage('lib/assets/diw.jpeg'),
+                          backgroundImage: AssetImage('lib/assets/edd.jpg'),
                         ),
                         SizedBox(width: 10),
                         Expanded(
@@ -1097,14 +1096,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 1',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -1136,7 +1135,7 @@ class _VotingSheetState extends State<VotingSheet> {
                       children: [
                         CircleAvatar(
                           radius: 40,
-                          backgroundImage: AssetImage('lib/assets/diw.jpeg'),
+                          backgroundImage: AssetImage('lib/assets/edd.jpg'),
                         ),
                         SizedBox(width: 10),
                         Expanded(
@@ -1149,14 +1148,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 2',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
@@ -1187,7 +1186,7 @@ class _VotingSheetState extends State<VotingSheet> {
                       children: [
                         CircleAvatar(
                           radius: 40,
-                          backgroundImage: AssetImage('lib/assets/otl.jpg'),
+                          backgroundImage: AssetImage('lib/assets/edd.jpg'),
                         ),
                         SizedBox(width: 10),
                         Expanded(
@@ -1200,14 +1199,14 @@ class _VotingSheetState extends State<VotingSheet> {
                                   children: <TextSpan>[
                                     TextSpan(text: 'Candidate 3',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontSize: 15.0,
                                           color: Color(0xFF002365),
                                         )
                                     ),
                                     TextSpan(text: '\n[Party List]',
                                         style: TextStyle(
-                                          fontFamily: 'Playfair Display',
+                                          fontFamily: 'Inter',
                                           fontStyle: FontStyle.italic,
                                           fontSize: 15.0,
                                           color: Color(0x80002365),
