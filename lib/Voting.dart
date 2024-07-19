@@ -4,6 +4,7 @@ import 'package:pawsupunf/Home.dart';
 import 'package:pawsupunf/Events.dart';
 import 'package:pawsupunf/Profile.dart';
 import 'package:pawsupunf/VotingSheet.dart';
+import 'locker.dart';
 
 class Voting extends StatefulWidget {
   @override
@@ -365,7 +366,8 @@ class _VotingState extends State<Voting> {
             Image.asset('lib/assets/homez.png', height: 30, width: 30, color: iconColor(0)),
             Image.asset('lib/assets/star.png', height: 30, width: 30, color: iconColor(1)),
             Image.asset('lib/assets/star2.png', height: 30, width: 30, color: iconColor(2)),
-            Image.asset('lib/assets/profile.png', height: 30, width: 30, color: iconColor(3)),
+            Image.asset('lib/assets/lockers.png', height: 30, width: 30, color: iconColor(3)),
+            Image.asset('lib/assets/profile.png', height: 30, width: 30, color: iconColor(4)),
           ],
           color: Color(0xFF002365),
           buttonBackgroundColor: Color(0xFF002365),
@@ -390,6 +392,12 @@ class _VotingState extends State<Voting> {
                 );
                 break;
               case 3:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Locker()),
+                );
+                break;
+              case 4:
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => Profile()),

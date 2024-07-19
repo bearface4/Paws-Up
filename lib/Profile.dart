@@ -6,6 +6,7 @@ import 'package:pawsupunf/Home.dart';
 import 'package:pawsupunf/Events.dart';
 import 'package:pawsupunf/Voting.dart';
 import 'package:pawsupunf/changePass.dart';
+import 'package:pawsupunf/locker.dart';
 import 'package:pawsupunf/updateProf.dart';
 import 'package:pawsupunf/SignIn.dart'; // Import SignIn.dart
 
@@ -15,7 +16,7 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<Profile> {
-  int _page = 3;
+  int _page = 4;
   GlobalKey _bottomNavigationKey = GlobalKey();
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   User? currentUser = FirebaseAuth.instance.currentUser;
@@ -232,7 +233,8 @@ class _ProfilePageState extends State<Profile> {
             Image.asset('lib/assets/homez.png', height: 30, width: 30, color: iconColor(0)),
             Image.asset('lib/assets/star.png', height: 30, width: 30, color: iconColor(1)),
             Image.asset('lib/assets/star2.png', height: 30, width: 30, color: iconColor(2)),
-            Image.asset('lib/assets/profile.png', height: 30, width: 30, color: iconColor(3)),
+            Image.asset('lib/assets/lockers.png', height: 30, width: 30, color: iconColor(3)),
+            Image.asset('lib/assets/profile.png', height: 30, width: 30, color: iconColor(4)),
           ],
           color: Color(0xFF002365),
           buttonBackgroundColor: Color(0xFF002365),
@@ -252,6 +254,9 @@ class _ProfilePageState extends State<Profile> {
                 break;
               case 2:
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Voting()));
+                break;
+              case 3:
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Locker()));
                 break;
             }
           },

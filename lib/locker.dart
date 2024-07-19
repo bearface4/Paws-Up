@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:pawsupunf/Events.dart';
 import 'package:pawsupunf/Home.dart';
 import 'package:pawsupunf/Voting.dart';
 import 'package:pawsupunf/Profile.dart';
@@ -10,7 +11,7 @@ class Locker extends StatefulWidget {
 }
 
 class _LockerState extends State<Locker> {
-  int _page = 1; // Set the initial page to Locker (0-based index)
+  int _page = 3; // Set the initial page to Locker (0-based index)
   final GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
 
   Color iconColor(int index) {
@@ -62,7 +63,8 @@ class _LockerState extends State<Locker> {
         Image.asset('lib/assets/homez.png', height: 30, width: 30, color: iconColor(0)),
         Image.asset('lib/assets/star.png', height: 30, width: 30, color: iconColor(1)),
         Image.asset('lib/assets/star2.png', height: 30, width: 30, color: iconColor(2)),
-        Image.asset('lib/assets/profile.png', height: 30, width: 30, color: iconColor(3)),
+        Image.asset('lib/assets/lockers.png', height: 30, width: 30, color: iconColor(3)),
+        Image.asset('lib/assets/profile.png', height: 30, width: 30, color: iconColor(4)),
       ],
       color: Color(0xFF002365),
       buttonBackgroundColor: Color(0xFF002365),
@@ -83,7 +85,7 @@ class _LockerState extends State<Locker> {
           case 1:
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => Locker()),
+              MaterialPageRoute(builder: (context) => Events()),
             );
             break;
           case 2:
@@ -92,7 +94,7 @@ class _LockerState extends State<Locker> {
               MaterialPageRoute(builder: (context) => Voting()),
             );
             break;
-          case 3:
+          case 4:
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => Profile()),
@@ -100,6 +102,7 @@ class _LockerState extends State<Locker> {
             break;
         }
       },
+      letIndexChange: (index) => true,
     );
   }
 }

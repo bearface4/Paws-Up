@@ -7,6 +7,7 @@ import 'package:pawsupunf/Voting.dart';
 import 'package:pawsupunf/Profile.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:intl/intl.dart';
+import 'package:pawsupunf/locker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Events extends StatefulWidget {
@@ -683,7 +684,8 @@ class _EventsState extends State<Events> {
           Image.asset('lib/assets/homez.png', height: 30, width: 30, color: iconColor(0)),
           Image.asset('lib/assets/star.png', height: 30, width: 30, color: iconColor(1)),
           Image.asset('lib/assets/star2.png', height: 30, width: 30, color: iconColor(2)),
-          Image.asset('lib/assets/profile.png', height: 30, width: 30, color: iconColor(3)),
+          Image.asset('lib/assets/lockers.png', height: 30, width: 30, color: iconColor(3)),
+          Image.asset('lib/assets/profile.png', height: 30, width: 30, color: iconColor(4)),
         ],
         color: Color(0xFF002365),
         buttonBackgroundColor: Color(0xFF002365),
@@ -708,6 +710,12 @@ class _EventsState extends State<Events> {
               );
               break;
             case 3:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => Locker()),
+              );
+              break;
+            case 4:
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => Profile()),
