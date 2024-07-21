@@ -25,6 +25,7 @@ class _LockerState extends State<Locker> {
         children: <Widget>[
           Container(color: Colors.white),
           _buildHeader(),
+          _buildChooseLockerSize(),
         ],
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
@@ -49,6 +50,31 @@ class _LockerState extends State<Locker> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChooseLockerSize() {
+    return Positioned(
+      top: 150.0,
+      left: 0.0,
+      right: 0.0,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
+        decoration: BoxDecoration(
+          color: Color(0xFFD5E0F5),
+        ),
+        child: Center(
+          child: Text(
+            'Choose locker size',
+            style: TextStyle(
+              fontSize: 16.0,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Inter',
+              color: Color(0xFF002365),
+            ),
+          ),
         ),
       ),
     );
