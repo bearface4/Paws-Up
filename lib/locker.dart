@@ -81,25 +81,24 @@ class _LockerState extends State<Locker> {
 
   Widget _buildLockerSizeList() {
     return Padding(
-      padding: EdgeInsets.only(top: 30.0), // Add top padding here
+      padding: EdgeInsets.only(top: 30.0),
       child: ListView(
         padding: EdgeInsets.all(20.0),
         children: [
-          _buildLockerSizeRectangle('Small', '13" x 16" x 18"\n2.16 cubic ft\n\$8/day'),
+          _buildLockerSizeRectangle('Small Locker', '16 x 11 inches\n200 per Term\n\500php per Term', true),
           SizedBox(height: 35),
-          _buildLockerSizeRectangle('Medium', '13" x 16" x 36"\n4.33 cubic ft\n\$12/day'),
+          _buildLockerSizeRectangle('Medium Locker', '21.5 x 11 inches\n300php per Term\n\800php per Term', true),
           SizedBox(height: 45),
-          _buildLockerSizeRectangle('Large', '13" x 16" x 72"\n8.66 cubic ft\n\$16/day'),
+          _buildLockerSizeRectangle('Large Locker', '32 x 11 inches\n450php per Term\n\1300 per Term', true),
         ],
       ),
     );
   }
 
-
-  Widget _buildLockerSizeRectangle(String size, String details) {
+  Widget _buildLockerSizeRectangle(String size, String details, bool isGold) {
     return Container(
       width: double.infinity,
-      height: 100.0, // Reduced height from 80.0 to 70.0
+      height: 100.0,
       decoration: BoxDecoration(
         color: Color(0xFF002365),
         borderRadius: BorderRadius.circular(10.0),
@@ -113,8 +112,8 @@ class _LockerState extends State<Locker> {
             Text(
               size,
               style: TextStyle(
-                color: Colors.white,
-                fontSize: 18.0, // Slightly reduced font size
+                color: isGold ? Color(0xFFFFD700) : Colors.white, // Gold color if isGold is true
+                fontSize: 18.0,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Inter',
               ),
@@ -123,7 +122,7 @@ class _LockerState extends State<Locker> {
               line,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 12.0, // Slightly reduced font size
+                fontSize: 12.0,
                 fontFamily: 'Inter',
               ),
             )).toList(),
@@ -132,6 +131,7 @@ class _LockerState extends State<Locker> {
       ),
     );
   }
+
 
   Widget _buildBottomNavigationBar() {
     return CurvedNavigationBar(
