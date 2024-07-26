@@ -96,6 +96,21 @@ class _LockerState extends State<Locker> {
   }
 
   Widget _buildLockerSizeRectangle(String size, String details, bool isGold) {
+    double imageSize;
+    switch (size) {
+      case 'Small Locker':
+        imageSize = 50;
+        break;
+      case 'Medium Locker':
+        imageSize = 60;
+        break;
+      case 'Large Locker':
+        imageSize = 70;
+        break;
+      default:
+        imageSize = 60;
+    }
+
     return Container(
       width: double.infinity,
       height: 100.0,
@@ -103,34 +118,49 @@ class _LockerState extends State<Locker> {
         color: Color(0xFF002365),
         borderRadius: BorderRadius.circular(10.0),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              size,
-              style: TextStyle(
-                color: isGold ? Color(0xFFFFD700) : Colors.white, // Gold color if isGold is true
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Inter',
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Image.asset(
+              'lib/assets/lopi.png',
+              width: imageSize,
+              height: imageSize,
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    size,
+                    style: TextStyle(
+                      color: isGold ? Color(0xFFFFD700) : Colors.white,
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Inter',
+                    ),
+                  ),
+                  ...details.split('\n').map((line) => Text(
+                    line,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12.0,
+                      fontFamily: 'Inter',
+                    ),
+                  )).toList(),
+                ],
               ),
             ),
-            ...details.split('\n').map((line) => Text(
-              line,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12.0,
-                fontFamily: 'Inter',
-              ),
-            )).toList(),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+
 
 
   Widget _buildBottomNavigationBar() {
