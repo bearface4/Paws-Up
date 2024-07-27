@@ -4,6 +4,7 @@ import 'package:pawsupunf/Events.dart';
 import 'package:pawsupunf/Home.dart';
 import 'package:pawsupunf/Voting.dart';
 import 'package:pawsupunf/Profile.dart';
+import 'package:pawsupunf/SmallLocker.dart'; // Import the SmallLocker class
 
 class Locker extends StatefulWidget {
   @override
@@ -78,7 +79,6 @@ class _LockerState extends State<Locker> {
     );
   }
 
-
   Widget _buildLockerSizeList() {
     return Padding(
       padding: EdgeInsets.only(top: 30.0),
@@ -87,9 +87,9 @@ class _LockerState extends State<Locker> {
         children: [
           _buildLockerSizeRectangle('Small Locker', '16 x 11 inches\n200 per Term\n\500php per Term', true),
           SizedBox(height: 35),
-          _buildLockerSizeRectangle('Medium Locker', '21.5 x 11 inches\n300php per Term\n\800php per Term', true),
+          _buildLockerSizeRectangle('Medium Locker', '21.5 x 11 inches\n300php per Term\n\800php per Term', false),
           SizedBox(height: 45),
-          _buildLockerSizeRectangle('Large Locker', '32 x 11 inches\n450php per Term\n\1300 per Term', true),
+          _buildLockerSizeRectangle('Large Locker', '32 x 11 inches\n450php per Term\n\1300 per Term', false),
         ],
       ),
     );
@@ -111,57 +111,65 @@ class _LockerState extends State<Locker> {
         imageSize = 60;
     }
 
-    return Container(
-      width: double.infinity,
-      height: 100.0,
-      decoration: BoxDecoration(
-        color: Color(0xFF002365),
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Image.asset(
-              'lib/assets/lopi.png',
-              width: imageSize,
-              height: imageSize,
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    size,
-                    style: TextStyle(
-                      color: isGold ? Color(0xFFFFD700) : Colors.white,
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Inter',
-                    ),
-                  ),
-                  ...details.split('\n').map((line) => Text(
-                    line,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12.0,
-                      fontFamily: 'Inter',
-                    ),
-                  )).toList(),
-                ],
+    return GestureDetector(
+      onTap: () {
+        if (size == 'Small Locker') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => SmallLocker()),
+          );
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        height: 100.0,
+        decoration: BoxDecoration(
+          color: Color(0xFF002365),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Image.asset(
+                'lib/assets/lopi.png',
+                width: imageSize,
+                height: imageSize,
               ),
             ),
-          ),
-        ],
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      size,
+                      style: TextStyle(
+                        color: isGold ? Color(0xFFFFD700) : Colors.white,
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Inter',
+                      ),
+                    ),
+                    ...details.split('\n').map((line) => Text(
+                      line,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12.0,
+                        fontFamily: 'Inter',
+                      ),
+                    )).toList(),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-
-
 
   Widget _buildBottomNavigationBar() {
     return CurvedNavigationBar(
