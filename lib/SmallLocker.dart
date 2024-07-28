@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
 class SmallLocker extends StatelessWidget {
   final List<Locker> lockers = List.generate(12, (index) {
     String id = 'S${(index + 1).toString().padLeft(2, '0')}';
-    LockerStatus status = LockerStatus.values[index % 3]; // Cycle through statuses
+    LockerStatus status = LockerStatus.values[index % 2]; // Cycle through statuses
     return Locker(id, status);
   });
 
@@ -33,6 +33,7 @@ class SmallLocker extends StatelessWidget {
           children: [
             _buildHeader(),
             _buildChooseLockerSize(),
+            SizedBox(height: 20), // Adjusted padding to move up lockers
             Expanded(
               child: _buildLockerGrid(),
             ),
@@ -51,6 +52,7 @@ class SmallLocker extends StatelessWidget {
         child: Text(
           'Locker',
           style: TextStyle(
+            fontFamily: "Inter",
             fontSize: 50.0,
             fontWeight: FontWeight.bold,
             color: Color(0xFF002365),
@@ -88,7 +90,7 @@ class SmallLocker extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: List.generate(4, (rowIndex) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -111,15 +113,13 @@ class SmallLocker extends StatelessWidget {
 
   Widget _buildLegend() {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.only(bottom: 150.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           LegendItem(color: Colors.blue, label: 'Available'),
           SizedBox(width: 16),
-          LegendItem(color: Colors.red, label: 'Occupied'),
-          SizedBox(width: 16),
-          LegendItem(color: Colors.yellow, label: 'Reserved'),
+          LegendItem(color: Colors.amber, label: 'Occupied'), // Changed to gold color
         ],
       ),
     );
@@ -133,7 +133,7 @@ class Locker {
   Locker(this.id, this.status);
 }
 
-enum LockerStatus { available, reserved, occupied }
+enum LockerStatus { available, occupied }
 
 class LockerWidget extends StatelessWidget {
   final Locker locker;
@@ -146,10 +146,8 @@ class LockerWidget extends StatelessWidget {
       switch (locker.status) {
         case LockerStatus.available:
           return Colors.blue;
-        case LockerStatus.reserved:
-          return Colors.yellow;
         case LockerStatus.occupied:
-          return Colors.red;
+          return Colors.amber; // Changed to gold color
       }
     }
 
@@ -157,16 +155,29 @@ class LockerWidget extends StatelessWidget {
       width: 80,
       height: 100,
       decoration: BoxDecoration(
-        color: Colors.grey.shade200,
+        color: Color(0xFFf5deb3), // Light brown background
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.grey.shade400),
+        border: Border.all(color: Color(0xFFd2b48c)), // Border color
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            locker.id,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          Container(
+            width: 80, // Adjusted width
+            padding: EdgeInsets.symmetric(vertical: 2.0),
+            decoration: BoxDecoration(
+              color: Color(0xFF9F907E), // Beige background for text
+            ),
+            child: Center(
+              child: Text(
+                locker.id,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: Colors.black,
+                ),
+              ),
+            ),
           ),
           SizedBox(height: 8),
           CircleAvatar(
