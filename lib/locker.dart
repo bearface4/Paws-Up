@@ -6,7 +6,8 @@ import 'package:pawsupunf/Voting.dart';
 import 'package:pawsupunf/Profile.dart';
 import 'package:pawsupunf/MediumLocker.dart';
 
-import 'LargeLocker.dart'; // Import the SmallLocker class
+import 'LargeLocker.dart';
+import 'SmallLocker.dart'; // Import the SmallLocker class
 
 class Locker extends StatefulWidget {
   @override
@@ -115,18 +116,23 @@ class _LockerState extends State<Locker> {
 
     return GestureDetector(
       onTap: () {
-        if (size == 'Medium Locker') {
+        if (size == 'Small Locker') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => SmallLocker()),
+          );
+        } else if (size == 'Medium Locker') {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => MediumLocker()),
           );
-      } else if (size == 'Large Locker') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => LargeLocker()),
-      );
-    }
-  },
+        } else if (size == 'Large Locker') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => LargeLocker()),
+          );
+        }
+      },
       child: Container(
         width: double.infinity,
         height: 100.0,
