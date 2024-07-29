@@ -8,22 +8,45 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Locker App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         fontFamily: 'Inter',
       ),
-      home: SmallLocker(),
+      home: MediumLocker(),
     );
   }
 }
 
-class SmallLocker extends StatelessWidget {
-  final List<Locker> lockers = List.generate(12, (index) {
+class MediumLocker extends StatefulWidget {
+  @override
+  _MediumLockerState createState() => _MediumLockerState();
+}
+
+class _MediumLockerState extends State<MediumLocker> {
+  final List<Locker> lockers = List.generate(180, (index) {
     String id = 'S${(index + 1).toString().padLeft(2, '0')}';
-    LockerStatus status = LockerStatus.values[index % 2]; // Cycle through statuses
+    LockerStatus status = (index < 27) ? LockerStatus.occupied : LockerStatus.available;
     return Locker(id, status);
   });
+
+  int currentPage = 0;
+  static const int lockersPerPage = 12;
+
+  void _nextPage() {
+    setState(() {
+      if ((currentPage + 1) * lockersPerPage < lockers.length) {
+        currentPage++;
+      }
+    });
+  }
+
+  void _previousPage() {
+    setState(() {
+      if (currentPage > 0) {
+        currentPage--;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +56,33 @@ class SmallLocker extends StatelessWidget {
           children: [
             _buildHeader(),
             _buildChooseLockerSize(),
-            SizedBox(height: 20), // Adjusted padding to move up lockers
+            SizedBox(height: 10),
             Expanded(
-              child: _buildLockerGrid(),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    top: -150, // Move the locker grid up
+                    child: _buildLockerGrid(),
+                  ),
+                  Positioned(
+                    left: 0,
+                    top: MediaQuery.of(context).size.height / 2.7 - 100, // Move arrows up
+                    child: _buildNavigationButton(Icons.arrow_back_ios, _previousPage, currentPage == 0),
+                  ),
+                  Positioned(
+                    right: 0,
+                    top: MediaQuery.of(context).size.height / 2.7 - 100, // Move arrows up
+                    child: _buildNavigationButton(Icons.arrow_forward_ios, _nextPage, (currentPage + 1) * lockersPerPage >= lockers.length),
+                  ),
+                  Positioned(
+                    bottom: 130.0, // Position the legend independently
+                    left: 0,
+                    right: 0,
+                    child: _buildLegend(),
+                  ),
+                ],
+              ),
             ),
-            _buildLegend(),
           ],
         ),
       ),
@@ -53,7 +98,7 @@ class SmallLocker extends StatelessWidget {
           'Locker',
           style: TextStyle(
             fontFamily: "Inter",
-            fontSize: 50.0,
+            fontSize: 45.0,
             fontWeight: FontWeight.bold,
             color: Color(0xFF002365),
           ),
@@ -86,11 +131,15 @@ class SmallLocker extends StatelessWidget {
   }
 
   Widget _buildLockerGrid() {
+    int start = currentPage * lockersPerPage;
+    int end = start + lockersPerPage;
+    List<Locker> currentLockers = lockers.sublist(start, end);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(4, (rowIndex) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -100,7 +149,7 @@ class SmallLocker extends StatelessWidget {
                   int index = rowIndex * 3 + colIndex;
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: LockerWidget(lockers[index]),
+                    child: LockerWidget(currentLockers[index]),
                   );
                 }),
               ),
@@ -112,15 +161,25 @@ class SmallLocker extends StatelessWidget {
   }
 
   Widget _buildLegend() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 150.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          LegendItem(color: Colors.blue, label: 'Available'),
-          SizedBox(width: 16),
-          LegendItem(color: Colors.amber, label: 'Occupied'), // Changed to gold color
-        ],
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        LegendItem(color: Colors.blue, label: 'Available'),
+        SizedBox(width: 16),
+        LegendItem(color: Colors.amber, label: 'Occupied'),
+      ],
+    );
+  }
+
+  Widget _buildNavigationButton(IconData icon, VoidCallback onPressed, bool disabled) {
+    return Container(
+      width: 50, // Fixed width to prevent overflow
+      height: 100,
+      alignment: Alignment.center,
+      child: IconButton(
+        icon: Icon(icon, size: 24.0),
+        onPressed: disabled ? null : onPressed,
+        color: disabled ? Colors.grey : Colors.black, // Grey out if disabled
       ),
     );
   }
@@ -147,7 +206,7 @@ class LockerWidget extends StatelessWidget {
         case LockerStatus.available:
           return Colors.blue;
         case LockerStatus.occupied:
-          return Colors.amber; // Changed to gold color
+          return Colors.amber; // Gold color for occupied
       }
     }
 
