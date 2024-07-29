@@ -95,7 +95,7 @@ class _MediumLockerState extends State<MediumLocker> {
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
-          'Locker',
+          'Locker (M)',
           style: TextStyle(
             fontFamily: "Inter",
             fontSize: 45.0,
