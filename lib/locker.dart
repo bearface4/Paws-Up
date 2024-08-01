@@ -88,11 +88,11 @@ class _LockerState extends State<Locker> {
       child: ListView(
         padding: EdgeInsets.all(20.0),
         children: [
-          _buildLockerSizeRectangle('Small Locker', '16 x 11 inches\n200 per Term\n\500php per Term', true),
+          _buildLockerSizeRectangle('Small Locker', '16 x 11 inches\n\500php per Acad Year', true),
           SizedBox(height: 35),
-          _buildLockerSizeRectangle('Medium Locker', '21.5 x 11 inches\n300php per Term\n\800php per Term', true),
+          _buildLockerSizeRectangle('Medium Locker', '21.5 x 11 inches\n\800php per Acad Year', true),
           SizedBox(height: 45),
-          _buildLockerSizeRectangle('Large Locker', '32 x 11 inches\n450php per Term\n\1300 per Term', true),
+          _buildLockerSizeRectangle('Large Locker', '32 x 11 inches\n\1300 per Acad Year', true),
         ],
       ),
     );

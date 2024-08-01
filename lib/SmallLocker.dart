@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 void main() {
   runApp(MyApp());
@@ -47,51 +48,59 @@ class _SmallLockerState extends State<SmallLocker> {
       }
     });
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildChooseLockerSize(),
-            SizedBox(height: 10),
-            Expanded(
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    top: -150, // Move the locker grid up
-                    child: _buildLockerGrid(),
-                  ),
-                  Positioned(
-                    left: 0,
-                    top: MediaQuery.of(context).size.height / 2.7 - 100, // Move arrows up
-                    child: _buildNavigationButton(Icons.arrow_back_ios, _previousPage, currentPage == 0),
-                  ),
-                  Positioned(
-                    right: 0,
-                    top: MediaQuery.of(context).size.height / 2.7 - 100, // Move arrows up
-                    child: _buildNavigationButton(Icons.arrow_forward_ios, _nextPage, (currentPage + 1) * lockersPerPage >= lockers.length),
-                  ),
-                  Positioned(
-                    bottom: 130.0, // Position the legend independently
-                    left: 0,
-                    right: 0,
-                    child: _buildLegend(),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+        appBar: AppBar(
+        leading: IconButton(
+        icon: Icon(Icons.arrow_back),
+    onPressed: () {
+    Navigator.of(context).pop();
+    },
+    ),
+    title: Text(''),
+    ),
+    body: SafeArea(
+    child: Column(
+    children: [
+    _buildHeader(),
+    _buildChooseLockerSize(),
+    SizedBox(height: 10),
+    Expanded(
+    child: Stack(
+    children: [
+    Positioned.fill(
+    top: -150, // Move the locker grid up
+    child: _buildLockerGrid(),
+    ),
+    Positioned(
+    left: 0,
+    top: MediaQuery.of(context).size.height / 2.7 - 100, // Move arrows up
+    child: _buildNavigationButton(Icons.arrow_back_ios, _previousPage, currentPage == 0),
+    ),
+    Positioned(
+    right: 0,
+    top: MediaQuery.of(context).size.height / 2.7 - 100, // Move arrows up
+    child: _buildNavigationButton(Icons.arrow_forward_ios, _nextPage, (currentPage + 1) * lockersPerPage >= lockers.length),
+    ),
+    Positioned(
+      bottom: 130.0, // Position the legend independently
+      left: 0,
+      right: 0,
+      child: _buildLegend(),
+     ),
+    ],
+    ),
+    ),
+    ],
+    ),
+    ),
     );
   }
 
-  Widget _buildHeader() {
+ Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.only(left: 30.0, top: 20.0),
+      padding: const EdgeInsets.only(left: 30.0, top: 0),
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
@@ -349,6 +358,15 @@ class LockerWidget extends StatelessWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              Lottie.network(
+                'https://lottie.host/a27683f1-ebcd-46fd-9ee0-a7edec74fd1d/cdgXKPI98Y.json', // Replace with your chosen Lottie JSON URL
+                height: 64,
+                width: 64,
+                fit: BoxFit.contain,
+                repeat: false,
+                animate: true,
+              ),
+              SizedBox(height: 10),
               Text(
                 'Success',
                 style: TextStyle(
@@ -370,6 +388,7 @@ class LockerWidget extends StatelessWidget {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   primary: Color(0xFF002365),
+                  onPrimary: Colors.white,
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -457,3 +476,4 @@ class LegendItem extends StatelessWidget {
     );
   }
 }
+
