@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:pawsupunf/Home.dart';
 import 'package:pawsupunf/Events.dart';
-import 'package:pawsupunf/Voting.dart';
 import 'package:pawsupunf/changePass.dart';
 import 'package:pawsupunf/locker.dart';
 import 'package:pawsupunf/updateProf.dart';

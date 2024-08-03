@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:pawsupunf/Events.dart';
 import 'package:pawsupunf/locker.dart';
-import 'package:pawsupunf/Voting.dart';
 import 'package:pawsupunf/Profile.dart';
 import 'package:intl/intl.dart';
 

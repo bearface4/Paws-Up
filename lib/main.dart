@@ -6,8 +6,6 @@ import 'package:pawsupunf/Home.dart';
 import 'package:pawsupunf/Profile.dart';
 import 'package:pawsupunf/SignIn.dart';
 import 'package:pawsupunf/SignUp.dart';
-import 'package:pawsupunf/Voting.dart';
-import 'package:pawsupunf/VotingSheet.dart';
 import 'package:pawsupunf/Verify.dart';
 import 'package:pawsupunf/changePass.dart';
 import 'package:pawsupunf/firebase_options.dart';
@@ -26,9 +24,7 @@ void main() async {
       '/SignUp': (context) => SignUp(),
       '/Home': (context) => Home(),
       '/Events': (context) => Events(),
-      '/Voting': (context) => Voting(),
       '/Profile': (context) => Profile(),
-      '/VotingSheet': (context) => VotingSheet(),
       '/Verify': (context) => Verify(),
       '/updateProf': (context) => updateProf(),
       '/changePass': (context) => changePass(),

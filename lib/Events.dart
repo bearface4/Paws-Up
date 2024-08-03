@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:pawsupunf/Home.dart';
-import 'package:pawsupunf/Voting.dart';
 import 'package:pawsupunf/Profile.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:intl/intl.dart';

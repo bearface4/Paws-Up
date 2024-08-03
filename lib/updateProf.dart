@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:pawsupunf/Home.dart';
 import 'package:pawsupunf/Events.dart';
-import 'package:pawsupunf/Voting.dart';
+import 'package:pawsupunf/locker.dart';
 import 'package:image_picker/image_picker.dart';
 
 class updateProf extends StatefulWidget {
@@ -310,7 +310,7 @@ class _ProfilePageState extends State<updateProf> {
           items: <Widget>[
             Image.asset('lib/assets/homez.png', height: 30, width: 30, color: iconColor(0)),
             Image.asset('lib/assets/star.png', height: 30, width: 30, color: iconColor(1)),
-            Image.asset('lib/assets/star2.png', height: 30, width: 30, color: iconColor(2)),
+            Image.asset('lib/assets/lockers.png', height: 30, width: 30, color: iconColor(2)),
             Image.asset('lib/assets/profile.png', height: 30, width: 30, color: iconColor(3)),
           ],
           color: Color(0xFF002365),
@@ -338,7 +338,7 @@ class _ProfilePageState extends State<updateProf> {
               case 2:
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => Voting()),
+                  MaterialPageRoute(builder: (context) => Locker()),
                 );
                 break;
             }
