@@ -15,7 +15,7 @@ class Locker extends StatefulWidget {
 }
 
 class _LockerState extends State<Locker> {
-  int _page = 3; // Set the initial page to Locker (0-based index)
+  int _page = 2; // Set the initial page to Locker (0-based index)
   final GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
 
   Color iconColor(int index) {
@@ -192,9 +192,8 @@ class _LockerState extends State<Locker> {
       items: <Widget>[
         Image.asset('lib/assets/homez.png', height: 30, width: 30, color: iconColor(0)),
         Image.asset('lib/assets/star.png', height: 30, width: 30, color: iconColor(1)),
-        Image.asset('lib/assets/star2.png', height: 30, width: 30, color: iconColor(2)),
-        Image.asset('lib/assets/lockers.png', height: 30, width: 30, color: iconColor(3)),
-        Image.asset('lib/assets/profile.png', height: 30, width: 30, color: iconColor(4)),
+        Image.asset('lib/assets/lockers.png', height: 30, width: 30, color: iconColor(2)),
+        Image.asset('lib/assets/profile.png', height: 30, width: 30, color: iconColor(3)),
       ],
       color: Color(0xFF002365),
       buttonBackgroundColor: Color(0xFF002365),
@@ -218,13 +217,7 @@ class _LockerState extends State<Locker> {
               MaterialPageRoute(builder: (context) => Events()),
             );
             break;
-          case 2:
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Voting()),
-            );
-            break;
-          case 4:
+          case 3:
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => Profile()),
