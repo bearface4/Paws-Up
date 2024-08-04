@@ -38,6 +38,7 @@ class _HomeState extends State<Home> {
   String? _userDepartment;
   String? _userSchool;
   String _selectedFilter = "Newest to Oldest"; // Default filter
+  bool _hasSearchText = false; // New state variable to track if there's text in the search bar
 
   @override
   void initState() {
@@ -57,6 +58,7 @@ class _HomeState extends State<Home> {
   void _onSearchChanged() {
     setState(() {
       _searchQuery = _searchController.text;
+      _hasSearchText = _searchController.text.isNotEmpty;
     });
   }
 
@@ -89,7 +91,7 @@ class _HomeState extends State<Home> {
     return FirebaseFirestore.instance
         .collection('announcements')
         .where('filter', whereIn: [userDepartment, userSchool, 'Everyone'])
-        .orderBy('timestamp', descending: _selectedFilter == "Newest to Oldest") // Order by timestamp based on selected filter
+        .orderBy('timestamp', descending: _selectedFilter == "Newest to Oldest")
         .snapshots();
   }
 
@@ -178,10 +180,20 @@ class _HomeState extends State<Home> {
                         cursorColor: Color(0xFFFFD700),
                         decoration: InputDecoration(
                           border: InputBorder.none,
-                          suffixIcon: Padding(
-                            padding: EdgeInsets.only(right: 0),
-                            child: Icon(Icons.search),
-                          ),
+                          suffixIcon: _hasSearchText
+                              ? IconButton(
+                            icon: Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() {
+                                _searchQuery = "";
+                                _hasSearchText = false;
+                              });
+                              // Trigger a search with empty query to reset the results
+                              _onSearchChanged();
+                            },
+                          )
+                              : Icon(Icons.search),
                         ),
                       ),
                     ),
