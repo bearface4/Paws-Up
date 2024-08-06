@@ -145,6 +145,23 @@ class _LoginScreenState extends State<SignIn> {
       return;
     }
     try {
+      // Check if the user exists in the 'users' collection
+      final userQuery = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: _emailController.text.trim())
+          .get();
+
+      if (userQuery.docs.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('No user found with this email in our records.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // If the user exists, proceed with password reset
       await FirebaseAuth.instance.sendPasswordResetEmail(email: _emailController.text.trim());
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -152,7 +169,7 @@ class _LoginScreenState extends State<SignIn> {
           backgroundColor: Colors.green,
         ),
       );
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.message ?? 'An error occurred'),
