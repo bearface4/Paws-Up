@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() {
   runApp(MyApp());
@@ -25,7 +27,7 @@ class LargeLocker extends StatefulWidget {
 
 class _LargeLockerState extends State<LargeLocker> {
   final List<Locker> lockers = List.generate(180, (index) {
-    String id = 'S${(index + 1).toString().padLeft(2, '0')}';
+    String id = 'L${(index + 1).toString().padLeft(2, '0')}';
     LockerStatus status = LockerStatus.available;
     return Locker(id, status);
   });
@@ -48,6 +50,7 @@ class _LargeLockerState extends State<LargeLocker> {
       }
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,21 +73,21 @@ class _LargeLockerState extends State<LargeLocker> {
               child: Stack(
                 children: [
                   Positioned.fill(
-                    top: -150, // Move the locker grid up
+                    top: -150,
                     child: _buildLockerGrid(),
                   ),
                   Positioned(
                     left: 0,
-                    top: MediaQuery.of(context).size.height / 2.7 - 100, // Move arrows up
+                    top: MediaQuery.of(context).size.height / 2.7 - 100,
                     child: _buildNavigationButton(Icons.arrow_back_ios, _previousPage, currentPage == 0),
                   ),
                   Positioned(
                     right: 0,
-                    top: MediaQuery.of(context).size.height / 2.7 - 100, // Move arrows up
+                    top: MediaQuery.of(context).size.height / 2.7 - 100,
                     child: _buildNavigationButton(Icons.arrow_forward_ios, _nextPage, (currentPage + 1) * lockersPerPage >= lockers.length),
                   ),
                   Positioned(
-                    bottom: 130.0, // Position the legend independently
+                    bottom: 130.0,
                     left: 0,
                     right: 0,
                     child: _buildLegend(),
@@ -162,7 +165,7 @@ class _LargeLockerState extends State<LargeLocker> {
                       child: LockerWidget(currentLockers[index]),
                     );
                   } else {
-                    return Container(width: 80, height: 100); // Empty space
+                    return Container(width: 80, height: 100);
                   }
                 }),
               ),
@@ -186,13 +189,13 @@ class _LargeLockerState extends State<LargeLocker> {
 
   Widget _buildNavigationButton(IconData icon, VoidCallback onPressed, bool disabled) {
     return Container(
-      width: 50, // Fixed width to prevent overflow
+      width: 50,
       height: 100,
       alignment: Alignment.center,
       child: IconButton(
         icon: Icon(icon, size: 24.0),
         onPressed: disabled ? null : onPressed,
-        color: disabled ? Colors.grey : Colors.black, // Grey out if disabled
+        color: disabled ? Colors.grey : Colors.black,
       ),
     );
   }
@@ -212,7 +215,30 @@ class LockerWidget extends StatelessWidget {
 
   LockerWidget(this.locker);
 
-  void _showLockerDialog(BuildContext context) {
+  Future<void> _showLockerDialog(BuildContext context) async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      // Handle case where user is not authenticated
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('You must be logged in to reserve a locker.')),
+        );
+      }
+      return;
+    }
+
+    final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+    if (!userDoc.exists) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('User data not found.')),
+        );
+      }
+      return;
+    }
+
+    final userData = userDoc.data()!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -260,7 +286,7 @@ class LockerWidget extends StatelessWidget {
                     ),
                     onPressed: () {
                       Navigator.of(context).pop();
-                      _showReservationDetailsDialog(context);
+                      _showReservationDetailsDialog(context, user, userData);
                     },
                     child: Text('Yes'),
                   ),
@@ -283,7 +309,7 @@ class LockerWidget extends StatelessWidget {
     );
   }
 
-  void _showReservationDetailsDialog(BuildContext context) {
+  Future<void> _showReservationDetailsDialog(BuildContext context, User user, Map<String, dynamic> userData) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -306,14 +332,7 @@ class LockerWidget extends StatelessWidget {
               ),
               SizedBox(height: 10),
               Text(
-                'Locker type: Large',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.black,
-                ),
-              ),
-              Text(
-                'Locker size: 32 x 11 inches',
+                'Per locker dimensions: 32 x 11 inches',
                 style: TextStyle(
                   fontSize: 16.0,
                   color: Colors.black,
@@ -332,9 +351,9 @@ class LockerWidget extends StatelessWidget {
                   primary: Color(0xFF002365),
                   onPrimary: Colors.white,
                 ),
-                onPressed: () {
+                onPressed: () async {
                   Navigator.of(context).pop();
-                  _showConfirmationDialog(context);
+                  await _reserveLocker(context, user.uid, userData);
                 },
                 child: Text('Avail Locker'),
               ),
@@ -343,6 +362,45 @@ class LockerWidget extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> _reserveLocker(BuildContext context, String userId, Map<String, dynamic> userData) async {
+    try {
+      // Get the current timestamp
+      Timestamp now = Timestamp.now();
+
+      // Define the reservation data
+      Map<String, dynamic> reservationData = {
+        'LockerNum': locker.id,
+        'firstName': userData['firstName'] ?? '',
+        'lastName': userData['lastName'] ?? '',
+        'department': userData['department'] ?? '',
+        'profilePictureURL': userData['profilePictureURL'] ?? '',
+        'reqDate': now,
+        'status': 'Reserved',  // Added status field
+      };
+
+      // Save the reservation data in Firestore
+      await FirebaseFirestore.instance
+          .collection('lockers')
+          .doc('largeLockers')
+          .collection(locker.id)  // Change to use locker ID as document ID
+          .doc()  // Use doc() to create a new document in the reservations subcollection
+          .set(reservationData);
+
+
+      // Show success dialog
+      if (context.mounted) {
+        _showConfirmationDialog(context);
+      }
+    } catch (e) {
+      // Handle errors
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to reserve locker: $e')),
+        );
+      }
+    }
   }
 
   void _showConfirmationDialog(BuildContext context) {
@@ -359,7 +417,7 @@ class LockerWidget extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Lottie.network(
-                'https://lottie.host/a27683f1-ebcd-46fd-9ee0-a7edec74fd1d/cdgXKPI98Y.json', // Replace with your chosen Lottie JSON URL
+                'https://lottie.host/a27683f1-ebcd-46fd-9ee0-a7edec74fd1d/cdgXKPI98Y.json',
                 height: 64,
                 width: 64,
                 fit: BoxFit.contain,
@@ -409,7 +467,7 @@ class LockerWidget extends StatelessWidget {
         case LockerStatus.available:
           return Colors.blue;
         case LockerStatus.occupied:
-          return Colors.amber; // Gold color for occupied
+          return Colors.amber;
       }
     }
 
@@ -419,18 +477,18 @@ class LockerWidget extends StatelessWidget {
         width: 80,
         height: 100,
         decoration: BoxDecoration(
-          color: Color(0xFFf5deb3), // Light brown background
+          color: Color(0xFFf5deb3),
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: Color(0xFFd2b48c)), // Border color
+          border: Border.all(color: Color(0xFFd2b48c)),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 80, // Adjusted width
+              width: 80,
               padding: EdgeInsets.symmetric(vertical: 2.0),
               decoration: BoxDecoration(
-                color: Color(0xFF9F907E), // Beige background for text
+                color: Color(0xFF9F907E),
               ),
               child: Center(
                 child: Text(
@@ -476,4 +534,3 @@ class LegendItem extends StatelessWidget {
     );
   }
 }
-

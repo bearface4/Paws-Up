@@ -48,57 +48,58 @@ class _SmallLockerState extends State<SmallLocker> {
       }
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
+      appBar: AppBar(
         leading: IconButton(
-        icon: Icon(Icons.arrow_back),
-    onPressed: () {
-    Navigator.of(context).pop();
-    },
-    ),
-    title: Text(''),
-    ),
-    body: SafeArea(
-    child: Column(
-    children: [
-    _buildHeader(),
-    _buildChooseLockerSize(),
-    SizedBox(height: 10),
-    Expanded(
-    child: Stack(
-    children: [
-    Positioned.fill(
-    top: -150, // Move the locker grid up
-    child: _buildLockerGrid(),
-    ),
-    Positioned(
-    left: 0,
-    top: MediaQuery.of(context).size.height / 2.7 - 100, // Move arrows up
-    child: _buildNavigationButton(Icons.arrow_back_ios, _previousPage, currentPage == 0),
-    ),
-    Positioned(
-    right: 0,
-    top: MediaQuery.of(context).size.height / 2.7 - 100, // Move arrows up
-    child: _buildNavigationButton(Icons.arrow_forward_ios, _nextPage, (currentPage + 1) * lockersPerPage >= lockers.length),
-    ),
-    Positioned(
-      bottom: 130.0, // Position the legend independently
-      left: 0,
-      right: 0,
-      child: _buildLegend(),
-     ),
-    ],
-    ),
-    ),
-    ],
-    ),
-    ),
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        title: Text(''),
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(),
+            _buildChooseLockerSize(),
+            SizedBox(height: 10),
+            Expanded(
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    top: -150, // Move the locker grid up
+                    child: _buildLockerGrid(),
+                  ),
+                  Positioned(
+                    left: 0,
+                    top: MediaQuery.of(context).size.height / 2.7 - 100, // Move arrows up
+                    child: _buildNavigationButton(Icons.arrow_back_ios, _previousPage, currentPage == 0),
+                  ),
+                  Positioned(
+                    right: 0,
+                    top: MediaQuery.of(context).size.height / 2.7 - 100, // Move arrows up
+                    child: _buildNavigationButton(Icons.arrow_forward_ios, _nextPage, (currentPage + 1) * lockersPerPage >= lockers.length),
+                  ),
+                  Positioned(
+                    bottom: 130.0, // Position the legend independently
+                    left: 0,
+                    right: 0,
+                    child: _buildLegend(),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
- Widget _buildHeader() {
+  Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.only(left: 30.0, top: 0),
       child: Align(
@@ -284,62 +285,77 @@ class LockerWidget extends StatelessWidget {
   }
 
   void _showReservationDetailsDialog(BuildContext context) {
+    bool isLoading = false;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          contentPadding: EdgeInsets.all(20.0),
-          backgroundColor: Color(0xFFD5E0F5),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Locker ${locker.id}',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
               ),
-              SizedBox(height: 10),
-              Text(
-                'Locker type: Small',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.black,
-                ),
+              contentPadding: EdgeInsets.all(20.0),
+              backgroundColor: Color(0xFFD5E0F5),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Locker ${locker.id}',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Locker type: Small',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(
+                    'Locker size: 16 × 11 inches',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(
+                    'Per academic year: ₱500.00',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  isLoading
+                      ? CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF002365)),
+                  )
+                      : ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF002365),
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        isLoading = true;
+                      });
+                      Future.delayed(Duration(seconds: 2), () {
+                        Navigator.of(context).pop();
+                        _showConfirmationDialog(context);
+                      });
+                    },
+                    child: Text('Avail Locker'),
+                  ),
+                ],
               ),
-              Text(
-                'Locker size: 16 × 11 inches',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.black,
-                ),
-              ),
-              Text(
-                'Per academic year: ₱500.00',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.black,
-                ),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: Color(0xFF002365),
-                  onPrimary: Colors.white,
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _showConfirmationDialog(context);
-                },
-                child: Text('Avail Locker'),
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -387,8 +403,8 @@ class LockerWidget extends StatelessWidget {
               SizedBox(height: 20),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  primary: Color(0xFF002365),
-                  onPrimary: Colors.white,
+                  backgroundColor: Color(0xFF002365),
+                  foregroundColor: Colors.white,
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -476,4 +492,3 @@ class LegendItem extends StatelessWidget {
     );
   }
 }
-
