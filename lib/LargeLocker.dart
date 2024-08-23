@@ -180,7 +180,7 @@ class _LargeLockerState extends State<LargeLocker> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        LegendItem(color: Colors.blue, label: 'Available'),
+        LegendItem(color: Color(0xFF002365), label: 'Available'),
         SizedBox(width: 16),
         LegendItem(color: Colors.amber, label: 'Occupied'),
       ],
@@ -219,7 +219,6 @@ class LockerWidget extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      // Handle case where user is not authenticated
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('You must be logged in to reserve a locker.')),
@@ -239,137 +238,145 @@ class LockerWidget extends StatelessWidget {
     }
 
     final userData = userDoc.data()!;
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          contentPadding: EdgeInsets.all(20.0),
-          backgroundColor: Color(0xFFD5E0F5),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Locker ${locker.id}',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'is Available',
-                style: TextStyle(
-                  fontSize: 18.0,
-                  color: Colors.black,
-                ),
-              ),
-              SizedBox(height: 20),
-              Text(
-                'Reserve locker now?',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.black,
-                ),
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Color(0xFF002365),
-                      onPrimary: Colors.white,
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      _showReservationDetailsDialog(context, user, userData);
-                    },
-                    child: Text('Yes'),
+    if (context.mounted) {
+      final result = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            contentPadding: EdgeInsets.all(20.0),
+            backgroundColor: Color(0xFFD5E0F5),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Locker ${locker.id}',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.white,
-                      onPrimary: Color(0xFF002365),
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('No'),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'is Available',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    color: Colors.black,
                   ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Reserve locker now?',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Color(0xFF002365),
+                        onPrimary: Colors.white,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop(true);
+                      },
+                      child: Text('Yes'),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.white,
+                        onPrimary: Color(0xFF002365),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                      },
+                      child: Text('No'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      );
+
+      if (result == true) {
+        _showReservationDetailsDialog(context, user, userData);
+      }
+    }
   }
 
   Future<void> _showReservationDetailsDialog(BuildContext context, User user, Map<String, dynamic> userData) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          contentPadding: EdgeInsets.all(20.0),
-          backgroundColor: Color(0xFFD5E0F5),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Locker ${locker.id}',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+    if (context.mounted) {
+      final proceed = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            contentPadding: EdgeInsets.all(20.0),
+            backgroundColor: Color(0xFFD5E0F5),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Locker ${locker.id}',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Per locker dimensions: 32 x 11 inches',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.black,
+                SizedBox(height: 10),
+                Text(
+                  'Per locker dimensions: 32 x 11 inches',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.black,
+                  ),
                 ),
-              ),
-              Text(
-                'Per academic year: ₱1300.00',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.black,
+                Text(
+                  'Per academic year: ₱1300.00',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.black,
+                  ),
                 ),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: Color(0xFF002365),
-                  onPrimary: Colors.white,
+                SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Color(0xFF002365),
+                    onPrimary: Colors.white,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: Text('Avail Locker'),
                 ),
-                onPressed: () async {
-                  Navigator.of(context).pop();
-                  await _reserveLocker(context, user.uid, userData);
-                },
-                child: Text('Avail Locker'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+              ],
+            ),
+          );
+        },
+      );
+
+      if (proceed == true) {
+        await _reserveLocker(context, user.uid, userData);
+      }
+    }
   }
 
   Future<void> _reserveLocker(BuildContext context, String userId, Map<String, dynamic> userData) async {
     try {
-      // Get the current timestamp
       Timestamp now = Timestamp.now();
 
-      // Define the reservation data
       Map<String, dynamic> reservationData = {
         'LockerNum': locker.id,
         'firstName': userData['firstName'] ?? '',
@@ -377,24 +384,20 @@ class LockerWidget extends StatelessWidget {
         'department': userData['department'] ?? '',
         'profilePictureURL': userData['profilePictureURL'] ?? '',
         'reqDate': now,
-        'status': 'Reserved',  // Added status field
+        'status': 'Reserved',
       };
 
-      // Save the reservation data in Firestore
       await FirebaseFirestore.instance
           .collection('lockers')
           .doc('largeLockers')
-          .collection(locker.id)  // Change to use locker ID as document ID
-          .doc()  // Use doc() to create a new document in the reservations subcollection
+          .collection(locker.id)
+          .doc()
           .set(reservationData);
 
-
-      // Show success dialog
       if (context.mounted) {
         _showConfirmationDialog(context);
       }
     } catch (e) {
-      // Handle errors
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to reserve locker: $e')),
@@ -404,60 +407,62 @@ class LockerWidget extends StatelessWidget {
   }
 
   void _showConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          contentPadding: EdgeInsets.all(20.0),
-          backgroundColor: Color(0xFFD5E0F5),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Lottie.network(
-                'https://lottie.host/a27683f1-ebcd-46fd-9ee0-a7edec74fd1d/cdgXKPI98Y.json',
-                height: 64,
-                width: 64,
-                fit: BoxFit.contain,
-                repeat: false,
-                animate: true,
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Success',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+    if (context.mounted) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            contentPadding: EdgeInsets.all(20.0),
+            backgroundColor: Color(0xFFD5E0F5),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Lottie.network(
+                  'https://lottie.host/a27683f1-ebcd-46fd-9ee0-a7edec74fd1d/cdgXKPI98Y.json',
+                  height: 64,
+                  width: 64,
+                  fit: BoxFit.contain,
+                  repeat: false,
+                  animate: true,
                 ),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Proceed to the Student Developments and Activity Office (Office) for agreement signing and payment stub. Also prepare a duplicate key of your lock.',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.black,
+                SizedBox(height: 10),
+                Text(
+                  'Success',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: Color(0xFF002365),
-                  onPrimary: Colors.white,
+                SizedBox(height: 10),
+                Text(
+                  'Proceed to the Student Developments and Activity Office (Office) for agreement signing and payment stub. Also prepare a duplicate key of your lock.',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.black,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+                SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Color(0xFF002365),
+                    onPrimary: Colors.white,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -465,7 +470,7 @@ class LockerWidget extends StatelessWidget {
     Color getStatusColor() {
       switch (locker.status) {
         case LockerStatus.available:
-          return Colors.blue;
+          return Color(0xFF002365);
         case LockerStatus.occupied:
           return Colors.amber;
       }
@@ -503,7 +508,7 @@ class LockerWidget extends StatelessWidget {
             ),
             SizedBox(height: 8),
             CircleAvatar(
-              radius: 16,
+              radius: 25,
               backgroundColor: getStatusColor(),
             ),
           ],
@@ -512,6 +517,7 @@ class LockerWidget extends StatelessWidget {
     );
   }
 }
+
 
 class LegendItem extends StatelessWidget {
   final Color color;

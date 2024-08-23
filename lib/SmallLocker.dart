@@ -1,22 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'Inter',
-      ),
-      home: SmallLocker(),
-    );
-  }
-}
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SmallLocker extends StatefulWidget {
   @override
@@ -178,7 +163,7 @@ class _SmallLockerState extends State<SmallLocker> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        LegendItem(color: Colors.blue, label: 'Available'),
+        LegendItem(color: Color(0xFF002365), label: 'Available'),
         SizedBox(width: 16),
         LegendItem(color: Colors.amber, label: 'Occupied'),
       ],
@@ -213,209 +198,261 @@ class LockerWidget extends StatelessWidget {
 
   LockerWidget(this.locker);
 
-  void _showLockerDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          contentPadding: EdgeInsets.all(20.0),
-          backgroundColor: Color(0xFFD5E0F5),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Locker ${locker.id}',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'is Available',
-                style: TextStyle(
-                  fontSize: 18.0,
-                  color: Colors.black,
-                ),
-              ),
-              SizedBox(height: 20),
-              Text(
-                'Reserve locker now?',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.black,
-                ),
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Color(0xFF002365),
-                      onPrimary: Colors.white,
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      _showReservationDetailsDialog(context);
-                    },
-                    child: Text('Yes'),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.white,
-                      onPrimary: Color(0xFF002365),
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('No'),
-                  ),
-                ],
-              ),
-            ],
-          ),
+  Future<void> _showLockerDialog(BuildContext context) async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('You must be logged in to reserve a locker.')),
         );
-      },
-    );
+      }
+      return;
+    }
+
+    final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+    if (!userDoc.exists) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('User data not found.')),
+        );
+      }
+      return;
+    }
+
+    final userData = userDoc.data()!;
+    if (context.mounted) {
+      final result = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            contentPadding: EdgeInsets.all(20.0),
+            backgroundColor: Color(0xFFD5E0F5),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Locker ${locker.id}',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'is Available',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Reserve locker now?',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Color(0xFF002365),
+                        onPrimary: Colors.white,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop(true);
+                      },
+                      child: Text('Yes'),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.white,
+                        onPrimary: Color(0xFF002365),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                      },
+                      child: Text('No'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      );
+
+      if (result == true) {
+        _showReservationDetailsDialog(context, user, userData);
+      }
+    }
   }
 
-  void _showReservationDetailsDialog(BuildContext context) {
-    bool isLoading = false;
+  Future<void> _showReservationDetailsDialog(BuildContext context, User user, Map<String, dynamic> userData) async {
+    if (context.mounted) {
+      final proceed = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            contentPadding: EdgeInsets.all(20.0),
+            backgroundColor: Color(0xFFD5E0F5),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Locker ${locker.id}',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Locker type: Small',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.black,
+                  ),
+                ),
+                Text(
+                  'Locker size: 16 × 11 inches',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.black,
+                  ),
+                ),
+                Text(
+                  'Per academic year: ₱500.00',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Color(0xFF002365),
+                    onPrimary: Colors.white,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: Text('Avail Locker'),
+                ),
+              ],
+            ),
+          );
+        },
+      );
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              contentPadding: EdgeInsets.all(20.0),
-              backgroundColor: Color(0xFFD5E0F5),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Locker ${locker.id}',
-                    style: TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Locker type: Small',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
-                    'Locker size: 16 × 11 inches',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
-                    'Per academic year: ₱500.00',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.black,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  isLoading
-                      ? CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF002365)),
-                  )
-                      : ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF002365),
-                      foregroundColor: Colors.white,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        isLoading = true;
-                      });
-                      Future.delayed(Duration(seconds: 2), () {
-                        Navigator.of(context).pop();
-                        _showConfirmationDialog(context);
-                      });
-                    },
-                    child: Text('Avail Locker'),
-                  ),
-                ],
-              ),
-            );
-          },
+      if (proceed == true) {
+        await _reserveLocker(context, user.uid, userData);
+      }
+    }
+  }
+
+  Future<void> _reserveLocker(BuildContext context, String userId, Map<String, dynamic> userData) async {
+    try {
+      Timestamp now = Timestamp.now();
+
+      Map<String, dynamic> reservationData = {
+        'LockerNum': locker.id,
+        'firstName': userData['firstName'] ?? '',
+        'lastName': userData['lastName'] ?? '',
+        'department': userData['department'] ?? '',
+        'profilePictureURL': userData['profilePictureURL'] ?? '',
+        'reqDate': now,
+        'status': 'Reserved',
+      };
+
+      await FirebaseFirestore.instance
+          .collection('lockers')
+          .doc('smallLockers')
+          .collection(locker.id)
+          .doc()
+          .set(reservationData);
+
+      if (context.mounted) {
+        _showConfirmationDialog(context);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to reserve locker: $e')),
         );
-      },
-    );
+      }
+    }
   }
 
   void _showConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          contentPadding: EdgeInsets.all(20.0),
-          backgroundColor: Color(0xFFD5E0F5),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Lottie.network(
-                'https://lottie.host/a27683f1-ebcd-46fd-9ee0-a7edec74fd1d/cdgXKPI98Y.json', // Replace with your chosen Lottie JSON URL
-                height: 64,
-                width: 64,
-                fit: BoxFit.contain,
-                repeat: false,
-                animate: true,
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Success',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+    if (context.mounted) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            contentPadding: EdgeInsets.all(20.0),
+            backgroundColor: Color(0xFFD5E0F5),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Lottie.network(
+                  'https://lottie.host/a27683f1-ebcd-46fd-9ee0-a7edec74fd1d/cdgXKPI98Y.json',
+                  height: 64,
+                  width: 64,
+                  fit: BoxFit.contain,
+                  repeat: false,
+                  animate: true,
                 ),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Proceed to the Student Developments and Activity Office (Office) for agreement signing and payment stub. Also prepare a duplicate key of your lock.',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.black,
+                SizedBox(height: 10),
+                Text(
+                  'Success',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF002365),
-                  foregroundColor: Colors.white,
+                SizedBox(height: 10),
+                Text(
+                  'Proceed to the Student Developments and Activity Office (Office) for agreement signing and payment stub. Also prepare a duplicate key of your lock.',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.black,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+                SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Color(0xFF002365),
+                    onPrimary: Colors.white,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -423,9 +460,9 @@ class LockerWidget extends StatelessWidget {
     Color getStatusColor() {
       switch (locker.status) {
         case LockerStatus.available:
-          return Colors.blue;
+          return Color(0xFF002365);
         case LockerStatus.occupied:
-          return Colors.amber; // Gold color for occupied
+          return Colors.amber;
       }
     }
 
@@ -461,7 +498,7 @@ class LockerWidget extends StatelessWidget {
             ),
             SizedBox(height: 8),
             CircleAvatar(
-              radius: 16,
+              radius: 25,
               backgroundColor: getStatusColor(),
             ),
           ],
