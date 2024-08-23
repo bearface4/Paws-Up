@@ -26,7 +26,7 @@ class LargeLocker extends StatefulWidget {
 }
 
 class _LargeLockerState extends State<LargeLocker> {
-  final List<Locker> lockers = List.generate(180, (index) {
+  final List<Locker> lockers = List.generate(60, (index) {
     String id = 'L${(index + 1).toString().padLeft(2, '0')}';
     LockerStatus status = LockerStatus.available;
     return Locker(id, status);
