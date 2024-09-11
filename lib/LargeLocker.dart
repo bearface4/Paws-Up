@@ -35,6 +35,33 @@ class _LargeLockerState extends State<LargeLocker> {
   int currentPage = 0;
   static const int lockersPerPage = 12;
 
+  @override
+  void initState() {
+    super.initState();
+    _fetchApprovedLockers();
+  }
+
+  Future<void> _fetchApprovedLockers() async {
+    try {
+      // Fetch approved lockers from Firestore
+      QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('approvedLockers').get();
+
+      // Loop through the approved lockers and mark them as approved
+      for (var doc in snapshot.docs) {
+        String lockerId = doc['lockerId']; // Assuming approved lockers have a lockerId field
+        int index = lockers.indexWhere((locker) => locker.id == lockerId);
+        if (index != -1) {
+          setState(() {
+            lockers[index].status = LockerStatus.occupied;
+            lockers[index].isApproved = true;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error fetching approved lockers: $e');
+    }
+  }
+
   void _nextPage() {
     setState(() {
       if ((currentPage + 1) * lockersPerPage < lockers.length) {
@@ -203,9 +230,10 @@ class _LargeLockerState extends State<LargeLocker> {
 
 class Locker {
   final String id;
-  final LockerStatus status;
+  LockerStatus status;
+  bool isApproved; // Indicates if the locker is approved (and can't be reserved)
 
-  Locker(this.id, this.status);
+  Locker(this.id, this.status, {this.isApproved = false});
 }
 
 enum LockerStatus { available, occupied }
@@ -216,6 +244,14 @@ class LockerWidget extends StatelessWidget {
   LockerWidget(this.locker);
 
   Future<void> _showLockerDialog(BuildContext context) async {
+    // Prevent action if the locker is approved
+    if (locker.isApproved) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('This locker is already occupied.')),
+      );
+      return;
+    }
+
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
@@ -517,7 +553,6 @@ class LockerWidget extends StatelessWidget {
     );
   }
 }
-
 
 class LegendItem extends StatelessWidget {
   final Color color;
