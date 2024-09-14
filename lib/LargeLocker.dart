@@ -417,10 +417,12 @@ class LockerWidget extends StatelessWidget {
         'LockerNum': locker.id,
         'firstName': userData['firstName'] ?? '',
         'lastName': userData['lastName'] ?? '',
+        'studentId': userData['studentId'] ?? '',
         'department': userData['department'] ?? '',
+        'section': userData['section']?? '',
         'profilePictureURL': userData['profilePictureURL'] ?? '',
         'reqDate': now,
-        'status': 'Reserved',
+        'status': 'Pending',
       };
 
       await FirebaseFirestore.instance
