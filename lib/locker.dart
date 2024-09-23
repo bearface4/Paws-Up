@@ -4,8 +4,7 @@ import 'package:pawsupunf/Events.dart';
 import 'package:pawsupunf/Home.dart';
 import 'package:pawsupunf/Profile.dart';
 import 'package:pawsupunf/MediumLocker.dart';
-
-import 'LargeLocker.dart';
+import 'package:pawsupunf/LargeLocker.dart';
 import 'SmallLocker.dart'; // Import the SmallLocker class
 
 class Locker extends StatefulWidget {
