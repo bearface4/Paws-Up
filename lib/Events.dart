@@ -470,7 +470,9 @@ class _EventsState extends State<Events> {
       children: [
         CircleAvatar(
           radius: 20.0,
-          backgroundImage: NetworkImage(event['profileImage'] ?? ''),
+          backgroundImage: event['profileImage'] != null && event['profileImage'].isNotEmpty
+              ? NetworkImage(event['profileImage'])
+              : AssetImage('lib/assets/blue.png') as ImageProvider,
           backgroundColor: Colors.transparent,
         ),
         SizedBox(width: 10), // Space between CircleAvatar and Text
@@ -544,6 +546,7 @@ class _EventsState extends State<Events> {
       ],
     );
   }
+
 
   Widget _buildEventImage(String imageUrl) {
     return Container(

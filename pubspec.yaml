@@ -14,7 +14,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   lottie: ^3.1.0
   firebase_core: ^2.19.0
-  cloud_firestore: 4.15.8
+  cloud_firestore: ^4.15.8
   firebase_auth: ^4.17.8
   shared_preferences: ^2.0.6
   flutter_secure_storage: ^5.0.2
@@ -24,6 +24,7 @@ dependencies:
   card_swiper: ^3.0.1
   intl: ^0.19.0
   url_launcher: ^6.3.0
+  connectivity_plus: ^4.0.1  # Added connectivity_plus package
 
 dev_dependencies:
   flutter_test:
@@ -40,7 +41,7 @@ flutter:
         - asset: lib/fonts/Sansation_Italic.ttf
     - family: Inter
       fonts:
-      - asset: lib/fonts/Inter-Regular.otf
+        - asset: lib/fonts/Inter-Regular.otf
     - family: Inter
       fonts:
         - asset: lib/fonts/Inter-Italic.otf

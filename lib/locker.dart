@@ -143,7 +143,7 @@ class _LockerState extends State<Locker> {
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: Image.asset(
-                'lib/assets/lopi.png',
+                'lib/assets/lock2.png',
                 width: imageSize,
                 height: imageSize,
               ),

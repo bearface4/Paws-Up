@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:lottie/lottie.dart';  // Ensure you have this import for Lottie animations
 
 void main() {
-  runApp(MyApp());
+  runApp(LargeLockerApp());
 }
 
-class MyApp extends StatelessWidget {
+class LargeLockerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -34,31 +36,119 @@ class _LargeLockerState extends State<LargeLocker> {
 
   int currentPage = 0;
   static const int lockersPerPage = 12;
+  bool hasPendingOrApprovedRequest = false;
+  String approvedLockerId = '';
+
+  Set<String> seenSnackBars = {};
 
   @override
   void initState() {
     super.initState();
-    _fetchApprovedLockers();
+    _monitorConnection();
+    _loadSeenSnackBars();
+    _checkUserLockerStatus();
+    _listenToRealTimeUpdates();
   }
 
-  Future<void> _fetchApprovedLockers() async {
-    try {
-      // Fetch approved lockers from Firestore
-      QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('approvedLockers').get();
+  Future<void> _loadSeenSnackBars() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      seenSnackBars = prefs.getStringList('seenSnackBars')?.toSet() ?? {};
+    });
+  }
 
-      // Loop through the approved lockers and mark them as approved
-      for (var doc in snapshot.docs) {
-        String lockerId = doc['lockerId']; // Assuming approved lockers have a lockerId field
-        int index = lockers.indexWhere((locker) => locker.id == lockerId);
-        if (index != -1) {
-          setState(() {
-            lockers[index].status = LockerStatus.occupied;
-            lockers[index].isApproved = true;
-          });
-        }
+  Future<void> _saveSeenSnackBar(String lockerId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    seenSnackBars.add(lockerId);
+    await prefs.setStringList('seenSnackBars', seenSnackBars.toList());
+  }
+
+  void _monitorConnection() {
+    Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      if (result == ConnectivityResult.none) {
+        _showSnackBar('No internet connection', Colors.red);
       }
-    } catch (e) {
-      print('Error fetching approved lockers: $e');
+    });
+  }
+
+  void _checkUserLockerStatus() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      FirebaseFirestore.instance.collection('users').doc(user.uid).get().then((userDoc) {
+        if (userDoc.exists) {
+          String studentId = userDoc['studentId'];
+          _checkLockerOwnership(studentId);
+        }
+      });
+    }
+  }
+
+  void _checkLockerOwnership(String studentId) {
+    FirebaseFirestore.instance
+        .collection('approvedLockers')
+        .where('studentId', isEqualTo: studentId)
+        .snapshots()
+        .listen((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        setState(() {
+          approvedLockerId = snapshot.docs.first['lockerId'];
+          hasPendingOrApprovedRequest = true;
+        });
+
+        String status = snapshot.docs.first['status'];
+        if (status == 'Approved' && !seenSnackBars.contains(approvedLockerId)) {
+          _showSnackBar('Your locker request for $approvedLockerId has been approved', Colors.green);
+          _saveSeenSnackBar(approvedLockerId);
+        } else if (status == 'Declined' && !seenSnackBars.contains(approvedLockerId)) {
+          _showSnackBar('Your locker request for $approvedLockerId has been declined', Colors.red);
+          _saveSeenSnackBar(approvedLockerId);
+        }
+      } else if (approvedLockerId.isNotEmpty) {
+        setState(() {
+          approvedLockerId = '';
+          hasPendingOrApprovedRequest = false;
+        });
+        _showSnackBar('Your locker ownership has been removed.', Colors.red);
+      }
+    });
+  }
+
+  void _listenToRealTimeUpdates() {
+    FirebaseFirestore.instance.collection('approvedLockers').snapshots().listen((snapshot) {
+      setState(() {
+        for (Locker locker in lockers) {
+          locker.status = LockerStatus.available;
+        }
+
+        snapshot.docs.forEach((doc) {
+          final lockerId = doc['lockerId'];
+          final studentId = doc['studentId'];
+          final lockerStatus = doc['status'];
+
+          Locker locker = lockers.firstWhere((locker) => locker.id == lockerId);
+
+          if (FirebaseAuth.instance.currentUser?.uid == studentId) {
+            if (lockerStatus == 'Approved') {
+              locker.status = LockerStatus.approved;
+            } else {
+              locker.status = LockerStatus.pending;
+            }
+          } else {
+            locker.status = LockerStatus.occupied;
+          }
+        });
+      });
+    });
+  }
+
+  void _showSnackBar(String message, Color backgroundColor) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: backgroundColor,
+        ),
+      );
     }
   }
 
@@ -189,7 +279,7 @@ class _LargeLockerState extends State<LargeLocker> {
                   if (index < currentLockers.length) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      child: LockerWidget(currentLockers[index]),
+                      child: LockerWidget(currentLockers[index], hasPendingOrApprovedRequest, approvedLockerId),
                     );
                   } else {
                     return Container(width: 80, height: 100);
@@ -210,6 +300,8 @@ class _LargeLockerState extends State<LargeLocker> {
         LegendItem(color: Color(0xFF002365), label: 'Available'),
         SizedBox(width: 16),
         LegendItem(color: Colors.amber, label: 'Occupied'),
+        SizedBox(width: 16),
+        LegendItem(color: Colors.green, label: 'Owned By You'),
       ],
     );
   }
@@ -231,45 +323,43 @@ class _LargeLockerState extends State<LargeLocker> {
 class Locker {
   final String id;
   LockerStatus status;
-  bool isApproved; // Indicates if the locker is approved (and can't be reserved)
 
-  Locker(this.id, this.status, {this.isApproved = false});
+  Locker(this.id, this.status);
 }
 
-enum LockerStatus { available, occupied }
+enum LockerStatus { available, occupied, approved, pending }
 
 class LockerWidget extends StatelessWidget {
   final Locker locker;
+  final bool hasPendingOrApprovedRequest;
+  final String approvedLockerId;
 
-  LockerWidget(this.locker);
+  LockerWidget(this.locker, this.hasPendingOrApprovedRequest, this.approvedLockerId);
 
   Future<void> _showLockerDialog(BuildContext context) async {
-    // Prevent action if the locker is approved
-    if (locker.isApproved) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('This locker is already occupied.')),
-      );
+    if (hasPendingOrApprovedRequest) {
+      if (approvedLockerId.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('You already own locker $approvedLockerId'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+      return;
+    }
+
+    if (locker.status == LockerStatus.approved) {
       return;
     }
 
     final user = FirebaseAuth.instance.currentUser;
-
     if (user == null) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('You must be logged in to reserve a locker.')),
-        );
-      }
       return;
     }
 
     final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
     if (!userDoc.exists) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User data not found.')),
-        );
-      }
       return;
     }
 
@@ -344,82 +434,94 @@ class LockerWidget extends StatelessWidget {
       );
 
       if (result == true) {
-        _showReservationDetailsDialog(context, user, userData);
+        // Proceed to show the locker details and "Avail Locker" button
+        _showAvailLockerDialog(context, user, userData);
       }
     }
   }
 
-  Future<void> _showReservationDetailsDialog(BuildContext context, User user, Map<String, dynamic> userData) async {
-    if (context.mounted) {
-      final proceed = await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            contentPadding: EdgeInsets.all(20.0),
-            backgroundColor: Color(0xFFD5E0F5),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Locker ${locker.id}',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+  // Show the dialog with "Avail Locker" button after user clicks Yes on the first confirmation
+  Future<void> _showAvailLockerDialog(BuildContext context, User user, Map<String, dynamic> userData) async {
+    final proceed = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          contentPadding: EdgeInsets.all(20.0),
+          backgroundColor: Color(0xFFD5E0F5),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Locker ${locker.id}',
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
                 ),
-                SizedBox(height: 10),
-                Text(
-                  'Per locker dimensions: 32 x 11 inches',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    color: Colors.black,
-                  ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Per locker dimensions: 32 x 11 inches',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  color: Colors.black,
                 ),
-                Text(
-                  'Per academic year: ₱1300.00',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    color: Colors.black,
-                  ),
+              ),
+              Text(
+                'Per academic year: ₱1300.00',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  color: Colors.black,
                 ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Color(0xFF002365),
-                    onPrimary: Colors.white,
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop(true);
-                  },
-                  child: Text('Avail Locker'),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  primary: Color(0xFF002365),
+                  onPrimary: Colors.white,
                 ),
-              ],
-            ),
-          );
-        },
-      );
+                onPressed: () {
+                  Navigator.of(context).pop(true); // Proceed to reserve the locker
+                },
+                child: Text('Avail Locker'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
 
-      if (proceed == true) {
-        await _reserveLocker(context, user.uid, userData);
-      }
+    if (proceed == true) {
+      await _reserveLocker(context, user.uid, userData);
+      _showConfirmationDialog(context); // Show success confirmation after reservation
     }
   }
 
   Future<void> _reserveLocker(BuildContext context, String userId, Map<String, dynamic> userData) async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No internet connection'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     try {
       Timestamp now = Timestamp.now();
-
       Map<String, dynamic> reservationData = {
         'LockerNum': locker.id,
         'firstName': userData['firstName'] ?? '',
         'lastName': userData['lastName'] ?? '',
         'studentId': userData['studentId'] ?? '',
         'department': userData['department'] ?? '',
-        'section': userData['section']?? '',
+        'section': userData['section'] ?? '',
+        'school': userData['school'] ?? '',
         'profilePictureURL': userData['profilePictureURL'] ?? '',
         'reqDate': now,
         'status': 'Pending',
@@ -433,14 +535,20 @@ class LockerWidget extends StatelessWidget {
           .set(reservationData);
 
       if (context.mounted) {
-        _showConfirmationDialog(context);
-      }
-    } catch (e) {
-      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to reserve locker: $e')),
+          SnackBar(
+            content: Text('Your locker request is now Pending.'),
+            backgroundColor: Colors.amber,
+          ),
         );
       }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to reserve locker ${locker.id}. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -477,7 +585,7 @@ class LockerWidget extends StatelessWidget {
                 ),
                 SizedBox(height: 10),
                 Text(
-                  'Proceed to the Student Developments and Activity Office (Office) for agreement signing and payment stub. Also prepare a duplicate key of your lock.',
+                  'Proceed to the Student Developments and Activity Office (SDAO) for agreement signing and payment stub. Also prepare a duplicate key of your lock.',
                   style: TextStyle(
                     fontSize: 16.0,
                     color: Colors.black,
@@ -491,7 +599,7 @@ class LockerWidget extends StatelessWidget {
                     onPrimary: Colors.white,
                   ),
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(); // Close dialog
                   },
                   child: Text('OK'),
                 ),
@@ -506,11 +614,17 @@ class LockerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color getStatusColor() {
+      if (approvedLockerId == locker.id) {
+        return Colors.green;
+      }
+
       switch (locker.status) {
-        case LockerStatus.available:
-          return Color(0xFF002365);
         case LockerStatus.occupied:
           return Colors.amber;
+        case LockerStatus.approved:
+          return Colors.green;
+        default:
+          return Color(0xFF002365);
       }
     }
 
