@@ -337,6 +337,18 @@ class LockerWidget extends StatelessWidget {
   LockerWidget(this.locker, this.hasPendingOrApprovedRequest, this.approvedLockerId);
 
   Future<void> _showLockerDialog(BuildContext context) async {
+    // If the locker is occupied, show a snackbar
+    if (locker.status == LockerStatus.occupied) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Locker ${locker.id} is currently occupied.'),
+          backgroundColor: Colors.amber,
+        ),
+      );
+      return; // Stop further execution
+    }
+
+    // Check if user already has a pending or approved request
     if (hasPendingOrApprovedRequest) {
       if (approvedLockerId.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(

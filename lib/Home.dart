@@ -250,7 +250,13 @@ class _HomeState extends State<Home> {
                                 children: [
                                   Row(
                                     children: [
-                                      CircleAvatar(radius: 20.0, backgroundImage: NetworkImage(profileImage), backgroundColor: Colors.transparent),
+                                      CircleAvatar(
+                                        radius: 20.0,
+                                        backgroundImage: profileImage != 'default_profile_image_url' && profileImage.isNotEmpty
+                                            ? NetworkImage(profileImage)
+                                            : AssetImage('lib/assets/blue.png') as ImageProvider,
+                                        backgroundColor: Colors.transparent,
+                                      ),
                                       SizedBox(width: 8.0),
                                       Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
