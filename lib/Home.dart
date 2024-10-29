@@ -4,14 +4,16 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:card_swiper/card_swiper.dart';
+import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:pawsupunf/Events.dart';
 import 'package:pawsupunf/locker.dart';
 import 'package:pawsupunf/Profile.dart';
-import 'package:intl/intl.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
   runApp(MyApp());
 }
 
@@ -37,8 +39,8 @@ class _HomeState extends State<Home> {
   String _searchQuery = "";
   String? _userDepartment;
   String? _userSchool;
-  String _selectedFilter = "Newest to Oldest"; // Default filter
-  bool _hasSearchText = false; // New state variable to track if there's text in the search bar
+  String _selectedFilter = "Newest to Oldest";
+  bool _hasSearchText = false;
 
   @override
   void initState() {
@@ -104,11 +106,7 @@ class _HomeState extends State<Home> {
             children: <Widget>[
               ListTile(
                 leading: Image.asset('lib/assets/sortz.png'),
-                title: Text('Newest to Oldest',
-                  style: TextStyle(
-                    color: Color(0xFF002365),
-                  ),
-                ),
+                title: Text('Newest to Oldest', style: TextStyle(color: Color(0xFF002365))),
                 onTap: () {
                   setState(() {
                     _selectedFilter = "Newest to Oldest";
@@ -118,11 +116,7 @@ class _HomeState extends State<Home> {
               ),
               ListTile(
                 leading: Image.asset('lib/assets/sortz.png'),
-                title: Text('Oldest to Newest',
-                  style: TextStyle(
-                    color: Color(0xFF002365),
-                  ),
-                ),
+                title: Text('Oldest to Newest', style: TextStyle(color: Color(0xFF002365))),
                 onTap: () {
                   setState(() {
                     _selectedFilter = "Oldest to Newest";
@@ -141,7 +135,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        FocusScope.of(context).unfocus(); // Close the keyboard when tapping outside the text field
+        FocusScope.of(context).unfocus();
       },
       child: Scaffold(
         body: Stack(
@@ -189,7 +183,6 @@ class _HomeState extends State<Home> {
                                 _searchQuery = "";
                                 _hasSearchText = false;
                               });
-                              // Trigger a search with empty query to reset the results
                               _onSearchChanged();
                             },
                           )
@@ -237,6 +230,10 @@ class _HomeState extends State<Home> {
                         String description = announcementData['description'] ?? 'No description available.';
                         List<dynamic>? imageUrls = announcementData['imageUrls'];
                         String? imageUrl = announcementData['imageUrl'];
+
+                        // Determine font size based on orgName length
+                        double orgNameFontSize = orgName.length > 20 ? 14.0 : 16.0;
+
                         return Padding(
                           padding: EdgeInsets.only(left: 15.0, right: 15.0, bottom: 20.0),
                           child: Card(
@@ -261,30 +258,41 @@ class _HomeState extends State<Home> {
                                       Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(orgName, style: TextStyle(fontFamily: 'Sansation', fontWeight: FontWeight.bold, fontSize: 16.0)),
-                                          Text(DateFormat('MM-dd-yyyy hh:mm a').format(timestamp.toDate()), style: TextStyle(fontFamily: 'Sansation', color: Colors.grey, fontSize: 12.0)),
+                                          Text(
+                                            orgName,
+                                            style: TextStyle(
+                                              fontFamily: 'Sansation',
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: orgNameFontSize, // Adjust font size dynamically
+                                            ),
+                                          ),
+                                          Text(
+                                            DateFormat('MM-dd-yyyy hh:mm a').format(timestamp.toDate()),
+                                            style: TextStyle(fontFamily: 'Sansation', color: Colors.grey, fontSize: 12.0),
+                                          ),
                                         ],
                                       ),
                                     ],
                                   ),
                                   SizedBox(height: 10.0),
-                                  Text(description, style: TextStyle(fontSize: 14.0, fontFamily: 'Sansation')),
+                                  ExpandableText(description), // Use expandable text for long descriptions
                                   SizedBox(height: 10.0),
-                                  if (imageUrls != null)
+                                  if (imageUrls != null && imageUrls.isNotEmpty)
                                     Container(
                                       height: 300,
                                       child: Swiper(
                                         itemBuilder: (BuildContext context, int index) {
-                                          return GestureDetector(
-                                            onTap: () => _showFullImage(context, imageUrls[index]),
-                                            child: ClipRRect(
-                                              borderRadius: BorderRadius.circular(20.0),
-                                              child: SizedBox(
-                                                width: 300,
-                                                height: 300,
+                                          return Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 10.0),
+                                            child: GestureDetector(
+                                              onTap: () => _showFullImage(context, imageUrls[index]),
+                                              child: ClipRRect(
+                                                borderRadius: BorderRadius.circular(20.0),
                                                 child: Image.network(
                                                   imageUrls[index],
                                                   fit: BoxFit.cover,
+                                                  width: 300,
+                                                  height: 300,
                                                 ),
                                               ),
                                             ),
@@ -293,29 +301,16 @@ class _HomeState extends State<Home> {
                                         itemCount: imageUrls.length,
                                         itemWidth: 300.0,
                                         itemHeight: 300.0,
-                                        layout: SwiperLayout.STACK,
+                                        layout: SwiperLayout.DEFAULT,
                                         loop: false,
-                                        pagination: SwiperPagination(
+                                        pagination: imageUrls.length > 1
+                                            ? SwiperPagination(
                                           builder: DotSwiperPaginationBuilder(
                                             activeColor: Color(0xFFFFD700),
                                             color: Colors.grey,
                                           ),
-                                        ),
-                                      ),
-                                    ),
-                                  if (imageUrl != null)
-                                    GestureDetector(
-                                      onTap: () => _showFullImage(context, imageUrl),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(20.0),
-                                        child: SizedBox(
-                                          width: 300,
-                                          height: 300,
-                                          child: Image.network(
-                                            imageUrl,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
+                                        )
+                                            : null, // No pagination if only one image
                                       ),
                                     ),
                                 ],
@@ -395,6 +390,48 @@ class _HomeState extends State<Home> {
           ),
         );
       },
+    );
+  }
+}
+
+class ExpandableText extends StatefulWidget {
+  final String text;
+
+  ExpandableText(this.text);
+
+  @override
+  _ExpandableTextState createState() => _ExpandableTextState();
+}
+
+class _ExpandableTextState extends State<ExpandableText> {
+  bool isExpanded = false;
+  static const int _maxLines = 3;
+
+  @override
+  Widget build(BuildContext context) {
+    bool isLongText = widget.text.length > 100;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          widget.text,
+          maxLines: isExpanded ? null : _maxLines,
+          overflow: isLongText && !isExpanded ? TextOverflow.ellipsis : TextOverflow.visible,
+        ),
+        if (isLongText)
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                isExpanded = !isExpanded;
+              });
+            },
+            child: Text(
+              isExpanded ? "View Less" : "View More",
+              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+            ),
+          ),
+      ],
     );
   }
 }

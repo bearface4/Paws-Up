@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:lottie/lottie.dart';
 import 'package:pawsupunf/Home.dart';
 import 'package:pawsupunf/Profile.dart';
 import 'package:card_swiper/card_swiper.dart';
@@ -149,20 +150,55 @@ class _EventsState extends State<Events> {
                     });
 
                     Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Registered successfully!'),
-                        backgroundColor: Color(0xFFFFD700), // Sets the Snackbar color to gold
-                      ),
+
+                    // Show confirmation dialog with Lottie animation
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Lottie.network(
+                                'https://lottie.host/7fa1dbc6-3f7c-426b-9cb9-4a83a72571dd/Mgx76UB5WZ.json',
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.fill,
+                              ),
+                              SizedBox(height: 20),
+                              Text(
+                                'Your QR code has been sent, please check your Outlook.',
+                                style: TextStyle(fontFamily: 'Inter', fontSize: 16),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              child: Text(
+                                'OK',
+                                style: TextStyle(color: Color(0xFF002365)),
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
                     );
-                    setState(() {}); // Update the state to reflect the registration status
+
+                    // Update the state to reflect the registration status
+                    setState(() {});
 
                   } catch (e) {
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Registration failed: $e'),
-                          backgroundColor: Colors.red,
-                        ));
+                      SnackBar(
+                        content: Text('Registration failed: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
                   }
                 },
               ),
