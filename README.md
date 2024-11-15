@@ -1,4 +1,4 @@
-# pawsupunf
+# PawsUp
 
 A new Flutter project.
 
