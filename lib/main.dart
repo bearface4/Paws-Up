@@ -27,7 +27,7 @@ void main() async {
       '/Profile': (context) => Profile(),
       '/Verify': (context) => Verify(),
       '/updateProf': (context) => updateProf(),
-      '/changePass': (context) => changePass(),
+      '/changePass': (context) => ChangePass(),
     },
   ));
 }

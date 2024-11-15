@@ -164,7 +164,7 @@ class _ProfilePageState extends State<Profile> {
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => changePass()),
+                                MaterialPageRoute(builder: (context) => ChangePass()),
                               );
                             },
                             child: Container(

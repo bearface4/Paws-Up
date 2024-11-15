@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class changePass extends StatefulWidget {
+class ChangePass extends StatefulWidget {
   @override
   _ChangePasswordState createState() => _ChangePasswordState();
 }
 
-class _ChangePasswordState extends State<changePass> {
+class _ChangePasswordState extends State<ChangePass> {
   final TextEditingController _currentPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
@@ -30,13 +30,17 @@ class _ChangePasswordState extends State<changePass> {
         );
         await user.reauthenticateWithCredential(credential);
         await user.updatePassword(_newPasswordController.text.trim());
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Password changed successfully'),
+            content: Text('Password changed successfully. Logging out...'),
             backgroundColor: Colors.green,
           ),
         );
-        _showStayLoggedInDialog();
+
+        // Log the user out
+        await FirebaseAuth.instance.signOut();
+        Navigator.of(context).popUntil((route) => route.isFirst); // Return to login or root screen
       } on FirebaseAuthException catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -73,57 +77,6 @@ class _ChangePasswordState extends State<changePass> {
     }
   }
 
-  Future _showStayLoggedInDialog() async {
-    return showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Password Changed',
-            style: TextStyle(
-              color: Color(0xFF002365),
-            ),
-          ),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: [
-                Text('Do you want to stay logged in or log out?'),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              child: Text(
-                'Stay Logged In',
-                style: TextStyle(
-                  color: Color(0xFF002365),
-                ),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.pop(context);
-              },
-            ),
-            TextButton(
-              child: Text(
-                'Log Out',
-                style: TextStyle(
-                  color: Color(0xFF002365),
-                ),
-              ),
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                Navigator.of(context).pop();
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,11 +107,11 @@ class _ChangePasswordState extends State<changePass> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Padding(
-                          padding: EdgeInsets.only(left: 25.0),
-                      child: Image.asset(
-                        'lib/assets/cPass.png',
-                        height: 200,
-                      ),
+                        padding: EdgeInsets.only(left: 25.0),
+                        child: Image.asset(
+                          'lib/assets/cPass.png',
+                          height: 200,
+                        ),
                       ),
                       SizedBox(height: 20),
                       SizedBox(
